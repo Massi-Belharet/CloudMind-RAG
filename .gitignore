@@ -23,3 +23,6 @@ Thumbs.db
 
 # Docker
 *.log
+
+# Data
+backend/data/processed/
