@@ -1,5 +1,5 @@
 """
-PDF Loader module for CloudMind RAG pipeline.
+PDF Loader module
 
 This module provides the PDFLoader class which handles loading and extracting
 text content from PDF files using PyMuPDF (fitz). It supports loading
