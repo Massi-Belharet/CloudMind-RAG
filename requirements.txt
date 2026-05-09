@@ -2,3 +2,4 @@ pymupdf
 pandas
 pytest
 langchain-text-splitters
+sentence-transformers
