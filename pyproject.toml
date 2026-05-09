@@ -5,6 +5,7 @@ description = "cloudmind-rag project"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "langchain-text-splitters>=1.1.2",
     "pandas>=3.0.2",
     "pymupdf>=1.27.2.3",
     "pytest>=9.0.3",
