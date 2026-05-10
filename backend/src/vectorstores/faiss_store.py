@@ -32,7 +32,7 @@ class FAISSStore(BaseVectorStore):
         Args:
             collection_name (str): Name of the collection.
             embedding_dim (int): Dimension of the embedding vectors.
-            M (int): Number of neighbors in HNSW graph. Higher = more accurate but more memory. 
+            M (int): Number of neighbors in HNSW graph. 
         """
         super().__init__(collection_name)
         self.embedding_dim = embedding_dim
@@ -61,7 +61,7 @@ class FAISSStore(BaseVectorStore):
 
         Args:
             query_vector (np.ndarray): Query vector of shape (embedding_dim,).
-            k (int): Number of results to return. Defaults to 5.
+            k (int): Number of results to return. 
 
         Returns:
             List[Document]: List of k most similar documents with similarity score in metadata.
