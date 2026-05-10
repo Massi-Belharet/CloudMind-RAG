@@ -6,3 +6,4 @@ sentence-transformers
 faiss-cpu
 langchain_core
 langchain-ollama
+ipykernel
