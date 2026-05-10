@@ -4,3 +4,5 @@ pytest
 langchain-text-splitters
 sentence-transformers
 faiss-cpu
+langchain_core
+langchain-ollama
