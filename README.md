@@ -34,7 +34,7 @@ and FinOps data from AWS, Azure, GCP and compliance sources.
 
 ## Project Structure
 
-\```
+```
 backend/
 ├── src/
 │   ├── loaders/         # PDF, Markdown, CSV loaders
@@ -50,12 +50,12 @@ backend/
 │   └── cloud_docs/compliance/
 ├── tests/unit/
 └── notebooks/
-\```
+```
 
 ## Installation
 
-\```bash
+```bash
 git clone https://github.com/Massi-Belharet/CloudMind-RAG.git
 cd CloudMind-RAG
 uv sync
-\```
+```
