@@ -152,7 +152,7 @@ class TestRemoveSpecialCharacters:
         assert "\x1f" not in result
 
     def test_preserves_french_accents(self, cleaner):
-        text = "Résilience et disponibilité sont essentielles."
+        text = "Résilience, accès et disponibilité sont essentielles."
         result = cleaner._remove_special_characters(text)
         assert "é" in result
         assert "è" in result
