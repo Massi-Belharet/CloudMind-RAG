@@ -32,6 +32,9 @@ and FinOps data from AWS, Azure, GCP and compliance sources.
 | LLM | qwen3.5:9b via Ollama |
 | Testing | pytest |
 
+## Architecture — Sprint 1
+![Sprint 1 — Naive RAG](docs/diagrams/sprint1_naive_rag.png)
+
 ## Project Structure
 
 ```
