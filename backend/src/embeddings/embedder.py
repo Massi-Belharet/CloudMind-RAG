@@ -11,6 +11,7 @@ Functions:
 from typing import List
 import numpy as np
 from sentence_transformers import SentenceTransformer
+import torch
 
 from src.loaders.base_loader import Document
 from src.embeddings.base_embeddings import BaseEmbedder
@@ -26,7 +27,9 @@ class Embedder(BaseEmbedder):
             model_name (str): Model name to load. 
         """
         super().__init__(model_name)
-        self.model = SentenceTransformer(model_name)
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.model = SentenceTransformer(model_name, device=self.device)
+        print(f"Embedder using: {self.device}")
 
     def embed(self, documents: List[Document]) -> np.ndarray:
         """
