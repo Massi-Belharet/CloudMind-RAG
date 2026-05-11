@@ -24,7 +24,7 @@ and FinOps data from AWS, Azure, GCP and compliance sources.
 
 | Component | Technology |
 |---|---|
-| Language | Python 3.11+ |
+| Language | Python 3.14 |
 | PDF Loader | PyMuPDF |
 | Text Splitting | LangChain Text Splitters |
 | Embeddings | nomic-embed-text-v1.5 |
