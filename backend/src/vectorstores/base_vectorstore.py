@@ -1,15 +1,19 @@
 """
 Base VectorStore module 
 
-Defines the abstract interface that all vector store implementations
-must follow. This ensures a consistent API across Qdrant, Pgvector,
-and FAISS, making it easy to swap stores during benchmarking.
+Defines two abstract interfaces following the Interface Segregation Principle:
+
+- BaseVectorStore: core interface for all vector stores (add + search)
+- PersistableStore: extended interface for stores that need disk persistence (FAISS)
+
+Qdrant and Pgvector persist automatically — they implement BaseVectorStore only.
+FAISS requires explicit save/load — it implements PersistableStore.
 
 Functions:
-    add(documents: List[Document], vectors: np.ndarray) -> None : Add documents and their vectors to the store.
-    search(query_vector: np.ndarray, k: int) -> List[Document] : Search for the k most similar documents.
-    save(path: str) -> None : Persist the vector store to disk.
-    load(path: str) -> None : Load the vector store from disk.
+    add(documents: List[Document], vectors: np.ndarray) -> None : Add documents and vectors.
+    search(query_vector: np.ndarray, k: int) -> List[Document] : Search for k most similar documents.
+    save(path: str) -> None : Persist the store to disk (PersistableStore only).
+    load(path: str) -> None : Load the store from disk (PersistableStore only).
 """
 
 from abc import ABC, abstractmethod
@@ -51,9 +55,12 @@ class BaseVectorStore(ABC):
             k (int): Number of results to return. Defaults to 5.
 
         Returns:
-            List[Document]: List of k most similar documents with updated metadata.
+            List[Document]: List of k most similar documents.
         """
         pass
+
+
+class PersistableStore(BaseVectorStore):
 
     @abstractmethod
     def save(self, path: str) -> None:
@@ -72,5 +79,8 @@ class BaseVectorStore(ABC):
 
         Args:
             path (str): Directory path where the store was saved.
+
+        Raises:
+            FileNotFoundError: If the index or documents file does not exist.
         """
         pass

@@ -20,10 +20,10 @@ import numpy as np
 import faiss
 
 from src.loaders.base_loader import Document
-from src.vectorstores.base_vectorstore import BaseVectorStore
+from src.vectorstores.base_vectorstore import PersistableStore
 
 
-class FAISSStore(BaseVectorStore):
+class FAISSStore(PersistableStore):
 
     def __init__(self, collection_name: str, embedding_dim: int, M: int = 32):
         """

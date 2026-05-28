@@ -16,7 +16,7 @@ from src.loaders.base_loader import BaseLoader
 from src.preprocessing.cleaners import TextCleaner
 from src.preprocessing.text_splitter import TextSplitter
 from src.embeddings.base_embeddings import BaseEmbedder
-from src.vectorstores.base_vectorstore import BaseVectorStore
+from src.vectorstores.base_vectorstore import BaseVectorStore, PersistableStore
 from src.rag.retriever import Retriever
 from src.llm.base import BaseLLM
 
@@ -59,13 +59,12 @@ class Pipeline:
     def build(self) -> None:
         """
         Load, clean, split, embed and index all documents into the vector store.
-        Persists the vector store to disk after indexing.
+        Persists the vector store to disk only if the store supports persistence.
         """
         # Load all documents
         documents = []
         for loader in self.loaders:
             documents.extend(loader.load())
-
         print(f"Loaded {len(documents)} documents")
 
         # Clean documents
@@ -84,9 +83,10 @@ class Pipeline:
         self.vectorstore.add(chunks, vectors)
         print(f"Indexed {len(chunks)} chunks")
 
-        # Persist to disk
-        self.vectorstore.save(self.storage_path)
-        print(f"Vector store saved to {self.storage_path}")
+        # Persist to disk only if store supports it
+        if isinstance(self.vectorstore, PersistableStore):
+            self.vectorstore.save(self.storage_path)
+            print(f"Vector store saved to {self.storage_path}")
 
     def ask(self, query: str, k: int = 5) -> str:
         """
