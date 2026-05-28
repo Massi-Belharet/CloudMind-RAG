@@ -110,35 +110,3 @@ class QdrantStore(BaseVectorStore):
             ))
 
         return documents
-
-    def save(self, path: str) -> None:
-        """
-        Verify the collection exists in Qdrant.
-        Data is automatically persisted — no manual save needed.
-        path parameter is unused — kept for interface consistency with BaseVectorStore.
-
-        Args:
-            path (str): Unused.
-
-        Raises:
-            ValueError: If the collection does not exist in Qdrant.
-        """
-        if not self.client.collection_exists(self.collection_name):
-            raise ValueError(f"Collection '{self.collection_name}' does not exist in Qdrant.")
-        print(f"Collection '{self.collection_name}' is persisted in Qdrant")
-
-    def load(self, path: str) -> None:
-        """
-        Verify the collection exists and is ready to query.
-        Data is automatically loaded by Qdrant on startup.
-        path parameter is unused — kept for interface consistency with BaseVectorStore.
-
-        Args:
-            path (str): Unused.
-
-        Raises:
-            ValueError: If the collection does not exist in Qdrant.
-        """
-        if not self.client.collection_exists(self.collection_name):
-            raise ValueError(f"Collection '{self.collection_name}' not found in Qdrant.")
-        print(f"Collection '{self.collection_name}' loaded from Qdrant")

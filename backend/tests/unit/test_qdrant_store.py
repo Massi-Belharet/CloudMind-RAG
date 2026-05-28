@@ -174,24 +174,3 @@ class TestSearch:
         )
 
 
-# QdrantStore.save() and load()
-
-class TestSaveLoad:
-
-    def test_save_raises_if_collection_not_exists(self, store, mock_client):
-        mock_client.collection_exists.return_value = False
-        with pytest.raises(ValueError):
-            store.save("unused_path")
-
-    def test_save_succeeds_if_collection_exists(self, store, mock_client):
-        mock_client.collection_exists.return_value = True
-        store.save("unused_path")
-
-    def test_load_raises_if_collection_not_exists(self, store, mock_client):
-        mock_client.collection_exists.return_value = False
-        with pytest.raises(ValueError):
-            store.load("unused_path")
-
-    def test_load_succeeds_if_collection_exists(self, store, mock_client):
-        mock_client.collection_exists.return_value = True
-        store.load("unused_path")
