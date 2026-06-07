@@ -10,3 +10,5 @@ langchain-ollama
 ipykernel
 torch
 pydantic-settings
+psycopg2-binary
+pgvector
