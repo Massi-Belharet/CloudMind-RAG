@@ -1,7 +1,8 @@
 """
 Vector Stores Benchmark 
 
-Measures and compares indexing speed, search speed, and similarity scores across FAISS, Qdrant, and Pgvector
+Measures and compares indexing speed, search speed, P95 latency, throughput
+and similarity scores across FAISS, Qdrant, and Pgvector.
 Results are saved to backend/results/benchmarks/
 
 Functions:
@@ -59,7 +60,8 @@ def benchmark_store(
     query_vectors: np.ndarray
 ) -> dict:
     """
-    Benchmark a single vector store for indexing speed, search speed and similarity.
+    Benchmark a single vector store for indexing speed, search speed,
+    P95 latency, throughput and similarity.
 
     Args:
         store_name (str): Name of the vector store (faiss, qdrant, pgvector).
@@ -69,7 +71,7 @@ def benchmark_store(
         query_vectors (np.ndarray): Query vectors to search.
 
     Returns:
-        dict: Benchmark results with indexing time, search time and similarity scores.
+        dict: Benchmark results with indexing time, search time, P95, QPS and similarity scores.
     """
     print(f"\n{'='*50}")
     print(f"Benchmarking {store_name.upper()}")
@@ -79,26 +81,33 @@ def benchmark_store(
     start = time.perf_counter()
     store.add(documents, vectors)
     indexing_time = round(time.perf_counter() - start, 4)
-    print(f"✅ Indexing time  : {indexing_time}s")
+    print(f"Indexing time  : {indexing_time}s")
 
     # 2. Search speed + scores
     search_times = []
     all_scores = []
+    individual_times = []
 
     for _ in range(config.benchmark.n_runs):
         start = time.perf_counter()
         for query_vec in query_vectors:
+            t0 = time.perf_counter()
             results = store.search(query_vec, k=config.benchmark.top_k)
+            individual_times.append(time.perf_counter() - t0)
             all_scores.extend([
                 r.metadata.get("similarity_score", 0) for r in results
             ])
         search_times.append(time.perf_counter() - start)
 
     avg_search_time = round(float(np.mean(search_times)), 4)
+    p95_latency = round(float(np.percentile(individual_times, 95)), 4)
+    throughput = round(len(query_vectors) / float(np.mean(search_times)), 2)
     avg_score = round(float(np.mean(all_scores)) if all_scores else 0, 4)
 
-    print(f"✅ Avg search time: {avg_search_time}s ({config.benchmark.n_runs} runs)")
-    print(f"✅ Avg similarity  : {avg_score}")
+    print(f"Avg search time: {avg_search_time}s ({config.benchmark.n_runs} runs)")
+    print(f"P95 latency    : {p95_latency}s")
+    print(f"Throughput     : {throughput} QPS")
+    print(f"Avg similarity : {avg_score}")
 
     return {
         "store": store_name,
@@ -106,6 +115,8 @@ def benchmark_store(
         "n_queries": len(query_vectors),
         "indexing_time_s": indexing_time,
         "avg_search_time_s": avg_search_time,
+        "p95_latency_s": p95_latency,
+        "throughput_qps": throughput,
         "avg_similarity_score": avg_score
     }
 
@@ -116,12 +127,12 @@ def run_benchmark() -> None:
     Loads all Cloud documents (PDF, Markdown, CSV), embeds them and measures performance.
     Results are saved to backend/results/benchmarks/.
     """
-    print("🚀 CloudMind — Vector Stores Benchmark")
+    print("CloudMind — Vector Stores Benchmark")
     print(f"Embedding model : {config.embedding.model}")
     print(f"N runs          : {config.benchmark.n_runs}")
 
     # Load + preprocess
-    print("\n📥 Loading documents...")
+    print("\nLoading documents...")
     documents = []
     documents.extend(PDFLoader(config.benchmark.cloud_docs_path).load())
     documents.extend(MarkdownLoader(config.benchmark.cloud_docs_path).load())
@@ -132,13 +143,13 @@ def run_benchmark() -> None:
         chunk_size=config.rag.chunk_size,
         chunk_overlap=config.rag.chunk_overlap
     ).split(documents)
-    print(f"✅ {len(chunks)} chunks ready")
+    print(f"{len(chunks)} chunks ready")
 
     # Embed
-    print("\n🔢 Embedding chunks...")
+    print("\nEmbedding chunks...")
     embedder = Embedder(model_name=config.embedding.model)
     vectors = embedder.embed(chunks)
-    print(f"✅ Vectors shape: {vectors.shape}")
+    print(f"Vectors shape: {vectors.shape}")
 
     # Embed queries
     queries = load_queries()
@@ -180,14 +191,14 @@ def run_benchmark() -> None:
         writer.writeheader()
         writer.writerows(results)
 
-    print(f"\n✅ Results saved to {results_path}")
+    print(f"\nResults saved to {results_path}")
 
     # Print summary
-    print("\n📊 BENCHMARK SUMMARY")
-    print(f"{'Store':<12} {'Indexing(s)':<14} {'Search(s)':<12} {'Similarity':<10}")
-    print("-" * 50)
+    print("\nBENCHMARK SUMMARY")
+    print(f"{'Store':<12} {'Indexing(s)':<14} {'Search(s)':<12} {'P95(s)':<10} {'QPS':<10} {'Similarity':<10}")
+    print("-" * 68)
     for r in results:
-        print(f"{r['store']:<12} {r['indexing_time_s']:<14} {r['avg_search_time_s']:<12} {r['avg_similarity_score']:<10}")
+        print(f"{r['store']:<12} {r['indexing_time_s']:<14} {r['avg_search_time_s']:<12} {r['p95_latency_s']:<10} {r['throughput_qps']:<10} {r['avg_similarity_score']:<10}")
 
 
 if __name__ == "__main__":

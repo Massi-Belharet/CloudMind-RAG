@@ -26,6 +26,3 @@ Thumbs.db
 
 # Data
 backend/data/processed/
-
-# Results
-backend/results/
