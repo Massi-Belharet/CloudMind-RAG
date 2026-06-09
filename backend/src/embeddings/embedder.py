@@ -15,6 +15,7 @@ import torch
 
 from src.loaders.base_loader import Document
 from src.embeddings.base_embeddings import BaseEmbedder
+from src.utils.config import config
 
 
 class Embedder(BaseEmbedder):
@@ -28,7 +29,10 @@ class Embedder(BaseEmbedder):
         """
         super().__init__(model_name)
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.model = SentenceTransformer(model_name, device=self.device)
+        self.model = SentenceTransformer(model_name, device=self.device, trust_remote_code=True)
+        if self.device == "cuda":
+            self.model = self.model.half()
+
         print(f"Embedder using: {self.device}")
 
     def embed(self, documents: List[Document]) -> np.ndarray:
@@ -41,8 +45,11 @@ class Embedder(BaseEmbedder):
         Returns:
             np.ndarray: Matrix of shape (n_documents, embedding_dim).
         """
-        texts = [doc.content for doc in documents]
-        return self.model.encode(texts, show_progress_bar=True)
+        torch.cuda.empty_cache()
+        texts = [config.embedding.document_prefix + doc.content for doc in documents]
+        embeddings = self.model.encode(texts, show_progress_bar=True, batch_size=8)
+
+        return embeddings.astype(np.float32)
 
     def embed_query(self, query: str) -> np.ndarray:
         """
@@ -54,4 +61,4 @@ class Embedder(BaseEmbedder):
         Returns:
             np.ndarray: Vector of shape (embedding_dim,).
         """
-        return self.model.encode([query])[0]
+        return self.model.encode([config.embedding.query_prefix + query])[0]

@@ -12,3 +12,6 @@ torch
 pydantic-settings
 psycopg2-binary
 pgvector
+pyyaml
+einops
+matplotlib

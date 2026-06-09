@@ -1,0 +1,26 @@
+embedding:
+  model: "nomic-ai/nomic-embed-text-v1.5"
+  dim: 768
+  document_prefix: "search_document: "
+  query_prefix: "search_query: "
+
+rag:
+  chunk_size: 500
+  chunk_overlap: 50
+  csv_chunk_size: 100
+  top_k: 5
+
+llm:
+  model: "qwen3.5:9b"
+
+benchmark:
+  cloud_docs_path: "backend/data/raw/cloud_docs"
+  csv_path: "backend/data/raw"
+  queries_path: "backend/data/benchmark/queries.json"
+  n_runs: 5
+  top_k: 5
+
+paths:
+  data_raw: "backend/data/raw"
+  results: "backend/results"
+  storage: "backend/data/processed"

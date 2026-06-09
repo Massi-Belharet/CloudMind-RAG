@@ -1,0 +1,32 @@
+[
+  {
+    "store": "faiss",
+    "n_documents": 10438,
+    "n_queries": 10,
+    "indexing_time_s": 0.2284,
+    "avg_search_time_s": 0.0028,
+    "p95_latency_s": 0.0003,
+    "throughput_qps": 3603.53,
+    "avg_similarity_score": 0.7551
+  },
+  {
+    "store": "qdrant",
+    "n_documents": 10438,
+    "n_queries": 10,
+    "indexing_time_s": 11.1793,
+    "avg_search_time_s": 0.1821,
+    "p95_latency_s": 0.033,
+    "throughput_qps": 54.9,
+    "avg_similarity_score": 0.7551
+  },
+  {
+    "store": "pgvector",
+    "n_documents": 10438,
+    "n_queries": 10,
+    "indexing_time_s": 24.217,
+    "avg_search_time_s": 0.5141,
+    "p95_latency_s": 0.0595,
+    "throughput_qps": 19.45,
+    "avg_similarity_score": 0.7551
+  }
+]

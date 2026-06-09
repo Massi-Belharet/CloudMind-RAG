@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     postgres_user: str
     postgres_password: str
 
+    # LLM
+    ollama_host: str
+    ollama_port: int
+
     model_config = SettingsConfigDict(env_file=".env")
 
 
