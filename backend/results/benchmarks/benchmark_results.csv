@@ -1,0 +1,4 @@
+store,n_documents,n_queries,indexing_time_s,avg_search_time_s,p95_latency_s,throughput_qps,avg_similarity_score
+faiss,10438,10,0.2284,0.0028,0.0003,3603.53,0.7551
+qdrant,10438,10,11.1793,0.1821,0.033,54.9,0.7551
+pgvector,10438,10,24.217,0.5141,0.0595,19.45,0.7551
