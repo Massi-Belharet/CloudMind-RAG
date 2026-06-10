@@ -1,18 +1,43 @@
 [project]
 name = "cloudmind-rag"
-version = "0.1.0"
+version = "0.1.1"
 description = "cloudmind-rag project"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "einops>=0.8.2",
     "faiss-cpu>=1.13.2",
     "ipykernel>=7.2.0",
     "langchain-core>=1.3.3",
     "langchain-ollama>=1.1.0",
     "langchain-text-splitters>=1.1.2",
+    "matplotlib>=3.10.9",
     "pandas>=3.0.2",
+    "pgvector>=0.4.2",
+    "psycopg2-binary>=2.9.12",
+    "pydantic-settings>=2.14.1",
     "pymupdf>=1.27.2.3",
     "pytest>=9.0.3",
+    "pyyaml>=6.0.3",
+    "qdrant-client>=1.18.0",
     "sentence-transformers>=5.4.1",
-    "torch>=2.11.0",
+    "torch>=2.6.0",
 ]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests as integration tests",
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu124" }
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[tool.setuptools.packages.find]
+where = ["backend"]
+include = ["src*"]
+

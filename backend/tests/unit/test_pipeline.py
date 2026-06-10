@@ -8,9 +8,10 @@ import numpy as np
 
 from src.loaders.base_loader import Document
 from src.rag.pipeline import Pipeline
+from src.vectorstores.base_vectorstore import PersistableStore
 
 
-# Fixtures
+#  Fixtures 
 
 @pytest.fixture
 def sample_documents():
@@ -70,6 +71,11 @@ def mock_vectorstore():
 
 
 @pytest.fixture
+def mock_persistable_vectorstore():
+    return MagicMock(spec=PersistableStore)
+
+
+@pytest.fixture
 def mock_retriever(sample_chunks):
     retriever = MagicMock()
     retriever.retrieve.return_value = sample_chunks
@@ -97,7 +103,7 @@ def pipeline(mock_loader, mock_cleaner, mock_splitter, mock_embedder, mock_vecto
     )
 
 
-# Pipeline.build() 
+# Pipeline.build()
 
 class TestBuild:
 
@@ -121,9 +127,28 @@ class TestBuild:
         pipeline.build()
         mock_vectorstore.add.assert_called_once()
 
-    def test_build_calls_vectorstore_save(self, pipeline, mock_vectorstore):
+    def test_build_does_not_save_non_persistable_store(self, pipeline, mock_vectorstore):
         pipeline.build()
-        mock_vectorstore.save.assert_called_once_with("backend/data/processed/faiss")
+        mock_vectorstore.save.assert_not_called()
+
+    def test_build_saves_persistable_store(
+        self, mock_loader, mock_cleaner, mock_splitter,
+        mock_embedder, mock_persistable_vectorstore,
+        mock_retriever, mock_generator, sample_chunks
+    ):
+        mock_persistable_vectorstore.add.return_value = None
+        pipeline = Pipeline(
+            loaders=[mock_loader],
+            cleaner=mock_cleaner,
+            splitter=mock_splitter,
+            embedder=mock_embedder,
+            vectorstore=mock_persistable_vectorstore,
+            retriever=mock_retriever,
+            generator=mock_generator,
+            storage_path="backend/data/processed/faiss"
+        )
+        pipeline.build()
+        mock_persistable_vectorstore.save.assert_called_once_with("backend/data/processed/faiss")
 
     def test_build_multiple_loaders(self, mock_cleaner, mock_splitter, mock_embedder, mock_vectorstore, mock_retriever, mock_generator, sample_documents):
         loader1 = MagicMock()

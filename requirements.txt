@@ -4,7 +4,14 @@ pytest
 langchain-text-splitters
 sentence-transformers
 faiss-cpu
+qdrant_client
 langchain_core
 langchain-ollama
 ipykernel
 torch
+pydantic-settings
+psycopg2-binary
+pgvector
+pyyaml
+einops
+matplotlib
