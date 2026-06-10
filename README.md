@@ -8,32 +8,31 @@ CloudMind is an Advanced RAG pipeline that helps teams make informed decisions
 about their cloud infrastructure by querying official documentation, best practices,
 and FinOps data from AWS, Azure, GCP and compliance sources.
 
-## Sprint 1 — Naive RAG 
+## Sprint 2 — Vector Stores Benchmark (Current)
 
 ### What's implemented
 
-- PDF, Markdown and CSV document loaders
-- Text cleaning and chunking (recursive + markdown structure-aware)
-- Embeddings (nomic-embed-text-v1.5)
-- FAISS vector store with HNSW index and cosine similarity
-- End-to-end RAG pipeline (load → clean → split → embed → index → retrieve → generate)
-- Local LLM via Ollama (qwen3.5:9b)
-- Full unit test coverage
+- Qdrant vector store with cosine similarity and automatic persistence
+- Pgvector vector store with HNSW index on PostgreSQL
+- Docker Compose infrastructure (Qdrant + Pgvector)
+- Pydantic Settings for environment configuration
+- Pydantic + YAML config for technical parameters
+- Integration tests for all three vector stores
+- Full benchmark script (indexing, search, P95 latency, throughput)
+- ADR 001 — Qdrant selected as production vector store
 
-### Stack
+### Benchmark Results
 
-| Component | Technology |
-|---|---|
-| Language | Python 3.14 |
-| PDF Loader | PyMuPDF |
-| Text Splitting | LangChain Text Splitters |
-| Embeddings | nomic-embed-text-v1.5 |
-| Vector Store | FAISS (IndexHNSWFlat) |
-| LLM | qwen3.5:9b via Ollama |
-| Testing | pytest |
+| Store | Indexing | Avg Search | P95 Latency | Throughput | Similarity |
+|---|---|---|---|---|---|
+| FAISS | 0.23s | 0.003s | 0.0003s | 3603 QPS | 0.755 |
+| Qdrant  | 11.18s | 0.182s | 0.033s | 54.9 QPS | 0.755 |
+| Pgvector | 24.22s | 0.514s | 0.060s | 19.45 QPS | 0.755 |
 
-## Architecture — Sprint 1
-![Sprint 1 — Naive RAG](docs/diagrams/sprint1_naive_rag.png)
+> **Qdrant** selected for production — best balance between performance, persistence and metadata filtering.
+
+## Architecture — Sprint 2
+![Sprint 2 — Vector Stores Benchmark](docs/diagrams/sprint2_benchmark.png)
 
 ## Project Structure
 
@@ -43,15 +42,21 @@ backend/
 │   ├── loaders/         # PDF, Markdown, CSV loaders
 │   ├── preprocessing/   # Text cleaner + splitter
 │   ├── embeddings/      # Embedder
-│   ├── vectorstores/    # FAISS vector store
+│   ├── vectorstores/    # FAISS + Qdrant + Pgvector
 │   ├── rag/             # Retriever + Pipeline
-│   └── llm/             # Generator + Prompts
+│   ├── llm/             # Generator + Prompts
+│   └── utils/           # Settings + Config
+├── config/              # config.yaml
 ├── data/raw/
 │   ├── cloud_docs/aws/
 │   ├── cloud_docs/azure/
 │   ├── cloud_docs/gcp/
 │   └── cloud_docs/compliance/
+├── data/benchmark/      # queries.json
+├── results/benchmarks/  # benchmark results
+├── scripts/             # benchmark scripts
 ├── tests/unit/
+├── tests/integration/
 └── notebooks/
 ```
 
@@ -61,4 +66,5 @@ backend/
 git clone https://github.com/Massi-Belharet/CloudMind-RAG.git
 cd CloudMind-RAG
 uv sync
+docker compose up -d
 ```
