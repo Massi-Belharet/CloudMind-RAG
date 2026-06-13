@@ -28,6 +28,10 @@ class RAGConfig(BaseModel):
     csv_chunk_size: int
     top_k: int
 
+class RerankerConfig(BaseModel):
+    model: str
+    top_k: int
+
 
 class LLMConfig(BaseModel):
     model: str
@@ -53,6 +57,7 @@ class AppConfig(BaseModel):
     llm: LLMConfig
     benchmark: BenchmarkConfig
     paths: PathsConfig
+    reranker: RerankerConfig
 
 
 # Loader 
