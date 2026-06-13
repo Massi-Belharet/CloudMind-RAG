@@ -1,10 +1,11 @@
 """
 Prompts module 
 
-Defines LangChain prompt templates used across the RAG pipeline.
+Defines prompts used across the RAG pipeline
 
 Functions:
     get_rag_prompt() -> ChatPromptTemplate : Return the main RAG prompt template.
+    get_multi_query_prompt(n_queries: int) -> ChatPromptTemplate : Return the multi-query reformulation prompt template.
 """
 
 from langchain_core.prompts import ChatPromptTemplate
@@ -39,6 +40,20 @@ Question: {question}
 Answer:"""
 
 
+MULTI_QUERY_SYSTEM_PROMPT = """You are an AI assistant specialized in cloud FinOps and multi-cloud architecture.
+Your task is to generate {n_queries} alternative versions of the user's question.
+
+Each alternative must explore a DIFFERENT angle or aspect of the original question,
+not just a surface-level paraphrase or synonym substitution. Vary:
+- terminology (technical vs business language)
+- sub-aspects of the topic
+- level of specificity (broader or narrower framing)
+
+Return ONLY the {n_queries} questions, one per line, with no numbering and no extra text."""
+
+MULTI_QUERY_HUMAN_PROMPT = "Original question: {question}"
+
+
 def get_rag_prompt() -> ChatPromptTemplate:
     """
     Return the main RAG prompt template for CloudMind.
@@ -49,4 +64,22 @@ def get_rag_prompt() -> ChatPromptTemplate:
     return ChatPromptTemplate.from_messages([
         ("system", RAG_SYSTEM_PROMPT),
         ("human", RAG_HUMAN_PROMPT)
+    ])
+
+
+def get_multi_query_prompt(n_queries: int) -> ChatPromptTemplate:
+    """
+    Return the multi-query reformulation prompt template.
+
+    Args:
+        n_queries (int): Number of reformulations the LLM should generate.
+
+    Returns:
+        ChatPromptTemplate: Prompt template with the system message pre-filled
+        with n_queries and a human message expecting a 'question' variable.
+    """
+    system = MULTI_QUERY_SYSTEM_PROMPT.format(n_queries=n_queries)
+    return ChatPromptTemplate.from_messages([
+        ("system", system),
+        ("human", MULTI_QUERY_HUMAN_PROMPT)
     ])
