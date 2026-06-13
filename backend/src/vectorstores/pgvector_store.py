@@ -25,12 +25,7 @@ from src.utils.settings import settings
 
 class PgvectorStore(BaseVectorStore):
 
-    def __init__(
-        self,
-        collection_name: str,
-        embedding_dim: int,
-        connection=None
-    ):
+    def __init__(self, collection_name: str, embedding_dim: int, connection=None):
         """
         Initialize PgvectorStore and connect to PostgreSQL.
         Connection settings are loaded from .env via Pydantic Settings.
