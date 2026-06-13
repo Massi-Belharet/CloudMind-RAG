@@ -10,6 +10,10 @@ rag:
   csv_chunk_size: 100
   top_k: 5
 
+reranker:
+  model: "BAAI/bge-reranker-v2-m3"
+  top_k: 5
+
 llm:
   model: "qwen3.5:9b"
 
