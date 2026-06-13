@@ -36,6 +36,9 @@ class RerankerConfig(BaseModel):
 class LLMConfig(BaseModel):
     model: str
 
+class MultiQueryConfig(BaseModel):
+    n_queries: int
+
 
 class BenchmarkConfig(BaseModel):
     cloud_docs_path: str
@@ -58,6 +61,7 @@ class AppConfig(BaseModel):
     benchmark: BenchmarkConfig
     paths: PathsConfig
     reranker: RerankerConfig
+    multi_query: MultiQueryConfig
 
 
 # Loader 
