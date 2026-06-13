@@ -52,13 +52,7 @@ def load_queries() -> List[str]:
     return data["vector_stores_benchmark"]
 
 
-def benchmark_store(
-    store_name: str,
-    store,
-    vectors: np.ndarray,
-    documents: List[Document],
-    query_vectors: np.ndarray
-) -> dict:
+def benchmark_store(store_name: str, store, vectors: np.ndarray, documents: List[Document], query_vectors: np.ndarray) -> dict:
     """
     Benchmark a single vector store for indexing speed, search speed,
     P95 latency, throughput and similarity.
