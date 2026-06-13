@@ -1,12 +1,11 @@
 """
-Tests for HybridRetriever module 
+Tests for HybridRetriever 
 
-Covers BM25 search, RRF fusion, and the full hybrid retrieve()
-combining lexical and dense search results.
+Covers BM25 search and the full hybrid retrieve()
+combining lexical and dense search results via RRF fusion.
 """
 
 import pytest
-import numpy as np
 from unittest.mock import MagicMock
 
 from src.loaders.base_loader import Document
@@ -44,6 +43,7 @@ def sample_documents():
 @pytest.fixture
 def mock_retriever(sample_documents):
     retriever = MagicMock()
+
     # Dense search returns documents in a different order than BM25
     retriever.retrieve.return_value = [
         sample_documents[2],
@@ -78,35 +78,7 @@ class TestBM25Search:
         assert len(results) == 2
 
 
-# HybridRetriever._rrf_fusion() 
-
-class TestRRFFusion:
-
-    def test_rrf_fusion_returns_k_results(self, hybrid_retriever, sample_documents):
-        bm25_results = [sample_documents[0], sample_documents[1]]
-        dense_results = [sample_documents[1], sample_documents[2]]
-
-        fused = hybrid_retriever._rrf_fusion(bm25_results, dense_results, k=2)
-        assert len(fused) == 2
-
-    def test_rrf_fusion_prioritizes_documents_in_both_lists(self, hybrid_retriever, sample_documents):
-        bm25_results = [sample_documents[0], sample_documents[1]]
-        dense_results = [sample_documents[1], sample_documents[2]]
-
-        fused = hybrid_retriever._rrf_fusion(bm25_results, dense_results, k=1)
-        # sample_documents[1] appears in both lists → should rank first
-        assert fused[0].content == sample_documents[1].content
-
-    def test_rrf_fusion_no_duplicates(self, hybrid_retriever, sample_documents):
-        bm25_results = [sample_documents[0], sample_documents[1]]
-        dense_results = [sample_documents[0], sample_documents[1]]
-
-        fused = hybrid_retriever._rrf_fusion(bm25_results, dense_results, k=5)
-        contents = [doc.content for doc in fused]
-        assert len(contents) == len(set(contents))
-
-
-# HybridRetriever.retrieve() 
+# HybridRetriever.retrieve()
 
 class TestRetrieve:
 

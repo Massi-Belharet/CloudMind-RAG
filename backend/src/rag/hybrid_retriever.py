@@ -15,18 +15,12 @@ from rank_bm25 import BM25Okapi
 
 from src.loaders.base_loader import Document
 from src.rag.retriever import Retriever
+from src.rag.fusion import rrf_fusion
 
 
 class HybridRetriever:
 
-    def __init__(
-        self,
-        retriever: Retriever,
-        documents: List[Document],
-        bm25_weight: float = 0.5,
-        dense_weight: float = 0.5,
-        rrf_k: int = 60
-    ):
+    def __init__(self, retriever: Retriever, documents: List[Document], bm25_weight: float = 0.5, dense_weight: float = 0.5, rrf_k: int = 60):
         """
         Initialize HybridRetriever with a dense retriever and BM25 index.
 
@@ -70,48 +64,6 @@ class HybridRetriever:
 
         return [self.documents[i] for i in top_k_indices]
 
-    def _rrf_fusion(
-        self,
-        bm25_results: List[Document],
-        dense_results: List[Document],
-        k: int
-    ) -> List[Document]:
-        """
-        Combine BM25 and dense results using Reciprocal Rank Fusion.
-
-        Args:
-            bm25_results (List[Document]): Results from BM25 search.
-            dense_results (List[Document]): Results from dense search.
-            k (int): Number of final results to return.
-
-        Returns:
-            List[Document]: Top-k documents after RRF fusion.
-        """
-        scores = {}
-
-        # BM25 scores
-        for rank, doc in enumerate(bm25_results):
-            key = doc.content
-            if key not in scores:
-                scores[key] = {"doc": doc, "score": 0.0}
-            scores[key]["score"] += self.bm25_weight * (1 / (rank + self.rrf_k))
-
-        # Dense scores
-        for rank, doc in enumerate(dense_results):
-            key = doc.content
-            if key not in scores:
-                scores[key] = {"doc": doc, "score": 0.0}
-            scores[key]["score"] += self.dense_weight * (1 / (rank + self.rrf_k))
-
-        # Sort by RRF score and return top-k
-        sorted_docs = sorted(
-            scores.values(),
-            key=lambda x: x["score"],
-            reverse=True
-        )[:k]
-
-        return [item["doc"] for item in sorted_docs]
-
     def retrieve(self, query: str, k: int = 5) -> List[Document]:
         """
         Retrieve top-k documents using hybrid BM25 + dense search with RRF fusion.
@@ -127,4 +79,9 @@ class HybridRetriever:
         bm25_results = self._bm25_search(query, k=k * 2)
         dense_results = self.retriever.retrieve(query, k=k * 2)
 
-        return self._rrf_fusion(bm25_results, dense_results, k=k)
+        return rrf_fusion(
+            ranked_lists=[bm25_results, dense_results],
+            weights=[self.bm25_weight, self.dense_weight],
+            k=k,
+            rrf_k=self.rrf_k
+        )
