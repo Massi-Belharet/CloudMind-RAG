@@ -16,3 +16,4 @@ pyyaml
 einops
 matplotlib
 rank-bm25
+langsmith
