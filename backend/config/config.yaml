@@ -14,6 +14,9 @@ reranker:
   model: "BAAI/bge-reranker-v2-m3"
   top_k: 5
 
+multi_query:
+  n_queries: 3
+
 llm:
   model: "qwen3.5:9b"
 
