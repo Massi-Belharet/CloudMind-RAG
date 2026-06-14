@@ -10,7 +10,7 @@ Functions:
     ask(query: str, k: int) -> str : Retrieve relevant chunks and generate a response.
 """
 
-from typing import List
+from typing import List, Optional
 
 from src.loaders.base_loader import BaseLoader
 from src.preprocessing.cleaners import TextCleaner
@@ -18,22 +18,14 @@ from src.preprocessing.text_splitter import TextSplitter
 from src.embeddings.base_embeddings import BaseEmbedder
 from src.vectorstores.base_vectorstore import BaseVectorStore, PersistableStore
 from src.rag.retriever import Retriever
+from src.rag.reranker import Reranker
 from src.llm.base import BaseLLM
 
 
 class Pipeline:
 
-    def __init__(
-        self,
-        loaders: List[BaseLoader],
-        cleaner: TextCleaner,
-        splitter: TextSplitter,
-        embedder: BaseEmbedder,
-        vectorstore: BaseVectorStore,
-        retriever: Retriever,
-        generator: BaseLLM,
-        storage_path: str = "backend/data/processed/faiss"
-    ):
+    def __init__(self, loaders: List[BaseLoader], cleaner: TextCleaner, splitter: TextSplitter, embedder: BaseEmbedder, vectorstore: BaseVectorStore, retriever: Retriever, generator: BaseLLM, reranker: Optional[Reranker] = None, storage_path: str = "backend/data/processed/faiss"):
+        
         """
         Initialize the RAG pipeline with all required components.
 
@@ -45,6 +37,7 @@ class Pipeline:
             vectorstore (BaseVectorStore): Vector store instance to index chunks.
             retriever (Retriever): Retriever instance to search relevant chunks.
             generator (BaseLLM): Generator instance to produce responses.
+            reranker (Optional[Reranker]): Optional reranker to improve retrieval quality. Defaults to None.
             storage_path (str): Path to persist the vector store. Defaults to backend/data/processed/faiss.
         """
         self.loaders = loaders
@@ -54,6 +47,7 @@ class Pipeline:
         self.vectorstore = vectorstore
         self.retriever = retriever
         self.generator = generator
+        self.reranker = reranker
         self.storage_path = storage_path
 
     def build(self) -> None:
@@ -91,6 +85,7 @@ class Pipeline:
     def ask(self, query: str, k: int = 5) -> str:
         """
         Retrieve relevant chunks and generate a response to the query.
+        If a reranker is configured, retrieves 2*k candidates and reranks them.
 
         Args:
             query (str): User question to answer.
@@ -99,9 +94,15 @@ class Pipeline:
         Returns:
             str: Generated response from the LLM.
         """
-        # Retrieve relevant chunks
-        documents = self.retriever.retrieve(query, k=k)
+        # Retrieve more candidates if reranking afterwards
+        retrieve_k = k * 2 if self.reranker else k
+        documents = self.retriever.retrieve(query, k=retrieve_k)
         print(f"Retrieved {len(documents)} chunks")
+
+        # Rerank if configured
+        if self.reranker:
+            documents = self.reranker.rerank(query, documents, top_k=k)
+            print(f"Reranked to {len(documents)} chunks")
 
         # Generate response
         response = self.generator.generate(query, documents)

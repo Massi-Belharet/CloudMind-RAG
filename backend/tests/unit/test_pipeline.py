@@ -8,10 +8,11 @@ import numpy as np
 
 from src.loaders.base_loader import Document
 from src.rag.pipeline import Pipeline
+from src.rag.reranker import Reranker
 from src.vectorstores.base_vectorstore import PersistableStore
 
 
-#  Fixtures 
+# Fixtures 
 
 @pytest.fixture
 def sample_documents():
@@ -90,6 +91,13 @@ def mock_generator():
 
 
 @pytest.fixture
+def mock_reranker(sample_chunks):
+    reranker = MagicMock(spec=Reranker)
+    reranker.rerank.return_value = sample_chunks
+    return reranker
+
+
+@pytest.fixture
 def pipeline(mock_loader, mock_cleaner, mock_splitter, mock_embedder, mock_vectorstore, mock_retriever, mock_generator):
     return Pipeline(
         loaders=[mock_loader],
@@ -103,7 +111,22 @@ def pipeline(mock_loader, mock_cleaner, mock_splitter, mock_embedder, mock_vecto
     )
 
 
-# Pipeline.build()
+@pytest.fixture
+def pipeline_with_reranker(mock_loader, mock_cleaner, mock_splitter, mock_embedder, mock_vectorstore, mock_retriever, mock_generator, mock_reranker):
+    return Pipeline(
+        loaders=[mock_loader],
+        cleaner=mock_cleaner,
+        splitter=mock_splitter,
+        embedder=mock_embedder,
+        vectorstore=mock_vectorstore,
+        retriever=mock_retriever,
+        generator=mock_generator,
+        reranker=mock_reranker,
+        storage_path="backend/data/processed/faiss"
+    )
+
+
+# Pipeline.build() 
 
 class TestBuild:
 
@@ -131,11 +154,7 @@ class TestBuild:
         pipeline.build()
         mock_vectorstore.save.assert_not_called()
 
-    def test_build_saves_persistable_store(
-        self, mock_loader, mock_cleaner, mock_splitter,
-        mock_embedder, mock_persistable_vectorstore,
-        mock_retriever, mock_generator, sample_chunks
-    ):
+    def test_build_saves_persistable_store(self, mock_loader, mock_cleaner, mock_splitter, mock_embedder, mock_persistable_vectorstore, mock_retriever, mock_generator):
         mock_persistable_vectorstore.add.return_value = None
         pipeline = Pipeline(
             loaders=[mock_loader],
@@ -193,3 +212,24 @@ class TestAsk:
     def test_ask_default_k_is_5(self, pipeline, mock_retriever):
         pipeline.ask("What are AWS best practices?")
         mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=5)
+
+
+# Pipeline.ask() — with reranker 
+
+class TestAskWithReranker:
+
+    def test_ask_with_reranker_calls_rerank(self, pipeline_with_reranker, mock_reranker):
+        pipeline_with_reranker.ask("What are AWS best practices?", k=3)
+        mock_reranker.rerank.assert_called_once()
+
+    def test_ask_with_reranker_retrieves_2k_candidates(self, pipeline_with_reranker, mock_retriever):
+        pipeline_with_reranker.ask("What are AWS best practices?", k=3)
+        mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=6)
+
+    def test_ask_without_reranker_skips_rerank(self, pipeline, mock_reranker):
+        pipeline.ask("What are AWS best practices?", k=3)
+        mock_reranker.rerank.assert_not_called()
+
+    def test_ask_without_reranker_retrieves_exact_k(self, pipeline, mock_retriever):
+        pipeline.ask("What are AWS best practices?", k=3)
+        mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=3)
