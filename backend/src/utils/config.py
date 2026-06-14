@@ -27,6 +27,7 @@ class RAGConfig(BaseModel):
     chunk_overlap: int
     csv_chunk_size: int
     top_k: int
+    relevance_threshold: float
 
 class RerankerConfig(BaseModel):
     model: str

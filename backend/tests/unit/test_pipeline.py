@@ -233,3 +233,69 @@ class TestAskWithReranker:
     def test_ask_without_reranker_retrieves_exact_k(self, pipeline, mock_retriever):
         pipeline.ask("What are AWS best practices?", k=3)
         mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=3)
+
+
+# Pipeline.ask() — CRAG 
+
+class TestCRAG:
+
+    def test_crag_returns_fallback_when_not_relevant(self, mock_loader, mock_cleaner, mock_splitter, mock_embedder, mock_vectorstore, mock_retriever, mock_generator, mock_reranker, sample_chunks):
+        # Reranker returns low scores → not relevant
+        mock_reranker.rerank.return_value = [
+            Document(
+                content=sample_chunks[0].content,
+                metadata={**sample_chunks[0].metadata, "rerank_score": -5.0}
+            )
+        ]
+        pipeline = Pipeline(
+            loaders=[mock_loader],
+            cleaner=mock_cleaner,
+            splitter=mock_splitter,
+            embedder=mock_embedder,
+            vectorstore=mock_vectorstore,
+            retriever=mock_retriever,
+            generator=mock_generator,
+            reranker=mock_reranker,
+            relevance_threshold=0.0
+        )
+        response = pipeline.ask("What are AWS best practices?", k=3)
+        assert "I don't have enough information" in response
+        mock_generator.generate.assert_not_called()
+
+    def test_crag_generates_when_relevant(self, mock_loader, mock_cleaner, mock_splitter, mock_embedder, mock_vectorstore, mock_retriever, mock_generator, mock_reranker, sample_chunks):
+        # Reranker returns high scores → relevant
+        mock_reranker.rerank.return_value = [
+            Document(
+                content=sample_chunks[0].content,
+                metadata={**sample_chunks[0].metadata, "rerank_score": 5.0}
+            )
+        ]
+        pipeline = Pipeline(
+            loaders=[mock_loader],
+            cleaner=mock_cleaner,
+            splitter=mock_splitter,
+            embedder=mock_embedder,
+            vectorstore=mock_vectorstore,
+            retriever=mock_retriever,
+            generator=mock_generator,
+            reranker=mock_reranker,
+            relevance_threshold=0.0
+        )
+        response = pipeline.ask("What are AWS best practices?", k=3)
+        mock_generator.generate.assert_called_once()
+
+    def test_crag_disabled_when_no_threshold(self, pipeline_with_reranker, mock_generator, mock_reranker, sample_chunks):
+        mock_reranker.rerank.return_value = [
+            Document(
+                content=sample_chunks[0].content,
+                metadata={**sample_chunks[0].metadata, "rerank_score": -5.0}
+            )
+        ]
+        pipeline_with_reranker.ask("What are AWS best practices?", k=3)
+        # No threshold set → CRAG disabled → generator always called
+        mock_generator.generate.assert_called_once()
+
+    def test_crag_disabled_when_no_reranker(self, pipeline, mock_generator):
+        # No reranker → CRAG impossible → generator always called
+        pipeline.ask("What are AWS best practices?", k=3)
+        mock_generator.generate.assert_called_once()

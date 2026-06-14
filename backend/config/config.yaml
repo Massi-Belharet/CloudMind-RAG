@@ -9,6 +9,7 @@ rag:
   chunk_overlap: 50
   csv_chunk_size: 100
   top_k: 5
+  relevance_threshold: 0.0
 
 reranker:
   model: "BAAI/bge-reranker-v2-m3"
