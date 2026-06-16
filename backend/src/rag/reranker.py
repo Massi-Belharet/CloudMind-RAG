@@ -15,6 +15,8 @@ from sentence_transformers import CrossEncoder
 from src.loaders.base_loader import Document
 from src.utils.config import config
 
+import torch
+
 
 class Reranker:
 
@@ -26,7 +28,10 @@ class Reranker:
             model_name (str): HuggingFace cross-encoder model name. Defaults to config value.
         """
         self.model_name = model_name or config.reranker.model
-        self.model = CrossEncoder(self.model_name)
+        self.model = CrossEncoder(self.model_name, device="cuda" if torch.cuda.is_available() else "cpu")
+
+        if torch.cuda.is_available():
+            self.model.model.half()
 
     def rerank(self, query: str, documents: List[Document], top_k: int = None) -> List[Document]:
         """

@@ -36,6 +36,7 @@ class RerankerConfig(BaseModel):
 
 class LLMConfig(BaseModel):
     model: str
+    multi_query_model: str
 
 class MultiQueryConfig(BaseModel):
     n_queries: int
