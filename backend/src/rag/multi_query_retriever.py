@@ -51,7 +51,15 @@ class MultiQueryRetriever:
             List[str]: Reformulated queries (does not include the original question).
         """
         response = self.chain.invoke({"question": query})
-        lines = response.content.strip().split("\n")
+        content = response.content.strip()
+
+        if "</think>" in content:
+            content = content.split("</think>")[-1].strip()
+
+        if not content:
+            content = response.additional_kwargs.get("thinking", "").strip()
+
+        lines = content.split("\n")
         reformulations = [line.strip() for line in lines if line.strip()]
         return reformulations[:self.n_queries]
 

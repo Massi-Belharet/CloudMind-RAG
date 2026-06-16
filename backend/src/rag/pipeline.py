@@ -21,6 +21,7 @@ from src.vectorstores.base_vectorstore import BaseVectorStore, PersistableStore
 from src.rag.retriever import Retriever
 from src.rag.reranker import Reranker
 from src.llm.base import BaseLLM
+from langsmith import traceable
 
 
 class Pipeline:
@@ -102,6 +103,8 @@ class Pipeline:
         scores = [doc.metadata.get("rerank_score", 0.0) for doc in scored]
         return float(np.mean(scores)) >= self.relevance_threshold
 
+
+    @traceable(name="CloudMind-RAG-Pipeline")
     def ask(self, query: str, k: int = 5) -> str:
         """
         Retrieve relevant chunks and generate a response to the query.
