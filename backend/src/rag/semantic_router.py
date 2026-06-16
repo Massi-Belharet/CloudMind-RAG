@@ -28,13 +28,13 @@ ROUTE_DESCRIPTIONS = {
 
 class SemanticRouter:
 
-    def __init__(self, embedder: BaseEmbedder, threshold: float = 0.75):
+    def __init__(self, embedder: BaseEmbedder, threshold: float = 0.60):
         """
         Initialize SemanticRouter and pre-compute route embeddings.
 
         Args:
             embedder (BaseEmbedder): Embedder instance used to encode queries and route descriptions.
-            threshold (float): Minimum cosine similarity score to commit to a route. Defaults to 0.75.
+            threshold (float): Minimum cosine similarity score to commit to a route. Defaults to 0.60.
         """
         self.embedder = embedder
         self.threshold = threshold
