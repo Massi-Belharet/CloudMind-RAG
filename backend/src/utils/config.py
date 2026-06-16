@@ -27,10 +27,19 @@ class RAGConfig(BaseModel):
     chunk_overlap: int
     csv_chunk_size: int
     top_k: int
+    relevance_threshold: float
+
+class RerankerConfig(BaseModel):
+    model: str
+    top_k: int
 
 
 class LLMConfig(BaseModel):
     model: str
+    multi_query_model: str
+
+class MultiQueryConfig(BaseModel):
+    n_queries: int
 
 
 class BenchmarkConfig(BaseModel):
@@ -53,6 +62,8 @@ class AppConfig(BaseModel):
     llm: LLMConfig
     benchmark: BenchmarkConfig
     paths: PathsConfig
+    reranker: RerankerConfig
+    multi_query: MultiQueryConfig
 
 
 # Loader 
