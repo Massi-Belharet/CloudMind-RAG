@@ -17,3 +17,4 @@ einops
 matplotlib
 rank-bm25
 langsmith
+python-dotenv
