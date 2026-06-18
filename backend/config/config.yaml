@@ -28,6 +28,11 @@ benchmark:
   queries_path: "backend/data/benchmark/queries.json"
   n_runs: 5
   top_k: 5
+  embedding_models:
+    - name: "nomic-ai/nomic-embed-text-v1.5"
+      dim: 768
+    - name: "BAAI/bge-m3"
+      dim: 1024
 
 paths:
   data_raw: "backend/data/raw"

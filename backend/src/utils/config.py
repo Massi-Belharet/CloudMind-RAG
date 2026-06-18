@@ -10,6 +10,7 @@ Functions:
 
 from pathlib import Path
 from pydantic import BaseModel
+from typing import List
 import yaml
 
 
@@ -41,6 +42,9 @@ class LLMConfig(BaseModel):
 class MultiQueryConfig(BaseModel):
     n_queries: int
 
+class EmbeddingModelConfig(BaseModel):
+    name: str
+    dim: int
 
 class BenchmarkConfig(BaseModel):
     cloud_docs_path: str
@@ -48,7 +52,7 @@ class BenchmarkConfig(BaseModel):
     queries_path: str
     n_runs: int
     top_k: int
-
+    embedding_models: List[EmbeddingModelConfig]
 
 class PathsConfig(BaseModel):
     data_raw: str
