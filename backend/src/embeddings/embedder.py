@@ -20,17 +20,19 @@ from src.utils.config import config
 
 class Embedder(BaseEmbedder):
 
-    def __init__(self, model_name: str = "BAAI/bge-m3"):
+    def __init__(self, model_name: str = "BAAI/bge-m3", use_fp16: bool = False):
         """
         Load a sentence-transformers model.
 
         Args:
-            model_name (str): Model name to load. 
+            model_name (str): Model name to load.
+            use_fp16 (bool): Whether to load model in fp16. Only use for large models on constrained VRAM.
         """
         super().__init__(model_name)
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model = SentenceTransformer(model_name, device=self.device, trust_remote_code=True)
-        if self.device == "cuda":
+        self.model.max_seq_length = 512
+        if self.device == "cuda" and use_fp16:
             self.model = self.model.half()
 
         print(f"Embedder using: {self.device}")

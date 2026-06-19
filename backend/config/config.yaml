@@ -28,11 +28,26 @@ benchmark:
   queries_path: "backend/data/benchmark/queries.json"
   n_runs: 5
   top_k: 5
+  chunk_size: 1000
   embedding_models:
     - name: "nomic-ai/nomic-embed-text-v1.5"
       dim: 768
+      document_prefix: "search_document: "
+      query_prefix: "search_query: "
+      batch_size: 32
+      use_fp16: false
     - name: "BAAI/bge-m3"
       dim: 1024
+      document_prefix: ""
+      query_prefix: ""
+      batch_size: 8
+      use_fp16: true
+    - name: "Qwen/Qwen3-Embedding-0.6B"
+      dim: 1024
+      document_prefix: ""
+      query_prefix: "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: "
+      batch_size: 8
+      use_fp16: true
 
 paths:
   data_raw: "backend/data/raw"
