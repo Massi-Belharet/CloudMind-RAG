@@ -1,0 +1,4 @@
+model,dim,n_documents,n_queries,embedding_time_s,indexing_time_s,avg_search_time_s,p95_latency_s,throughput_qps,avg_similarity_score
+nomic-ai/nomic-embed-text-v1.5,768,7219,10,219.4106,8.7531,0.0161,0.0299,62.17,0.7509
+BAAI/bge-m3,1024,7219,10,110.2389,7.9422,0.0211,0.0311,47.34,0.659
+Qwen/Qwen3-Embedding-0.6B,1024,7219,10,357.2363,8.93,0.0151,0.0262,66.08,0.6888
