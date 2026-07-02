@@ -138,9 +138,9 @@ def evaluate_embedding_model(model_config, chunks: List[Document], ground_truth:
     avg_mrr = round(float(np.mean(mrrs)), 4)
     avg_ndcg = round(float(np.mean(ndcgs)), 4)
 
-    print(f"✅ Recall@{k} : {avg_recall}")
-    print(f"✅ MRR       : {avg_mrr}")
-    print(f"✅ NDCG@{k}  : {avg_ndcg}")
+    print(f"Recall@{k} : {avg_recall}")
+    print(f"MRR       : {avg_mrr}")
+    print(f"NDCG@{k}  : {avg_ndcg}")
 
     # Cleanup
     store.client.delete_collection(collection_name)
@@ -165,12 +165,12 @@ def run_evaluation() -> None:
     Loads all Cloud documents, evaluates each model against the ground truth and saves results.
     Results are saved to backend/results/benchmarks/.
     """
-    print("🎯 CloudMind — Retrieval Quality Evaluation (Part B)")
+    print("CloudMind — Retrieval Quality Evaluation (Part B)")
     print(f"Models  : {[m.name for m in config.benchmark.embedding_models]}")
     print(f"Top-K   : {config.benchmark.top_k}")
 
     # Load + preprocess documents (same pipeline as the embedding benchmark)
-    print("\n📥 Loading documents...")
+    print("\nLoading documents...")
     documents = []
     documents.extend(PDFLoader(config.benchmark.cloud_docs_path).load())
     documents.extend(MarkdownLoader(config.benchmark.cloud_docs_path).load())
@@ -181,11 +181,11 @@ def run_evaluation() -> None:
         chunk_size=config.benchmark.chunk_size,
         chunk_overlap=config.rag.chunk_overlap
     ).split(documents)
-    print(f"✅ {len(chunks)} chunks ready")
+    print(f"{len(chunks)} chunks ready")
 
     # Load ground truth
     ground_truth = load_ground_truth()
-    print(f"✅ {len(ground_truth)} annotated queries loaded")
+    print(f"{len(ground_truth)} annotated queries loaded")
 
     # Evaluate each model
     results = []
@@ -204,11 +204,11 @@ def run_evaluation() -> None:
         writer.writeheader()
         writer.writerows(results)
 
-    print(f"\n✅ Results saved to {results_path}")
+    print(f"\nResults saved to {results_path}")
 
     # Print summary
     k = config.benchmark.top_k
-    print("\n📊 RETRIEVAL EVALUATION SUMMARY")
+    print("\nRETRIEVAL EVALUATION SUMMARY")
     print(f"{'Model':<35} {'Recall@'+str(k):<12} {'MRR':<10} {'NDCG@'+str(k):<10}")
     print("-" * 67)
     for r in results:
