@@ -21,6 +21,7 @@ class EmbeddingConfig(BaseModel):
     dim: int
     document_prefix: str = ""
     query_prefix: str = ""
+    use_fp16: bool = False
 
 
 class RAGConfig(BaseModel):

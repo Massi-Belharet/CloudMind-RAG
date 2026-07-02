@@ -1,8 +1,9 @@
 embedding:
-  model: "nomic-ai/nomic-embed-text-v1.5"
-  dim: 768
-  document_prefix: "search_document: "
-  query_prefix: "search_query: "
+  model: "BAAI/bge-m3"
+  dim: 1024
+  document_prefix: ""
+  query_prefix: ""
+  use_fp16: true
 
 rag:
   chunk_size: 500
