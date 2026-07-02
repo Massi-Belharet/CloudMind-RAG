@@ -1,0 +1,4 @@
+model,dim,n_queries,top_k,recall_at_5,mrr,ndcg_at_5
+nomic-ai/nomic-embed-text-v1.5,768,10,5,0.7,0.4233,0.4905
+BAAI/bge-m3,1024,10,5,0.7,0.55,0.5893
+Qwen/Qwen3-Embedding-0.6B,1024,10,5,0.5,0.3533,0.3887

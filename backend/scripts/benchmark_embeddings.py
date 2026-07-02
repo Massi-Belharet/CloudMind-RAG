@@ -1,7 +1,7 @@
 """
-Embedding Models Benchmark script for CloudMind RAG pipeline.
+Embedding Models Benchmark script 
 
-Compares nomic-ai/nomic-embed-text-v1.5 and BAAI/bge-m3 on indexing speed,
+Compares nomic-ai/nomic-embed-text-v1.5, BAAI/bge-m3 and Qwen/Qwen3-Embedding-0.6B on indexing speed,
 search latency, P95 latency, throughput and similarity scores.
 Results are saved to backend/results/benchmarks/embedding_benchmark_results.{json,csv}
 
@@ -78,14 +78,14 @@ def benchmark_embedding_model(model_config, chunks: List[Document], queries: Lis
     texts = [model_config.document_prefix + doc.content for doc in chunks]
     vectors = embedder.model.encode(texts, show_progress_bar=True, batch_size=model_config.batch_size).astype(np.float32)
     embedding_time = round(time.perf_counter() - embed_start, 4)
-    print(f"✅ Embedding time  : {embedding_time}s")
+    print(f"Embedding time  : {embedding_time}s")
 
     store = QdrantStore(collection_name=collection_name, embedding_dim=model_config.dim)
 
     index_start = time.perf_counter()
     store.add(chunks, vectors)
     indexing_time = round(time.perf_counter() - index_start, 4)
-    print(f"✅ Indexing time   : {indexing_time}s")
+    print(f"Indexing time   : {indexing_time}s")
 
     # 2. Search speed + scores
     individual_times = []
@@ -104,10 +104,10 @@ def benchmark_embedding_model(model_config, chunks: List[Document], queries: Lis
     throughput = round(1.0 / float(np.mean(individual_times)), 2)
     avg_score = round(float(np.mean(all_scores)) if all_scores else 0, 4)
 
-    print(f"✅ Avg search time : {avg_search_time}s")
-    print(f"✅ P95 latency     : {p95_latency}s")
-    print(f"✅ Throughput      : {throughput} QPS")
-    print(f"✅ Avg similarity  : {avg_score}")
+    print(f"Avg search time : {avg_search_time}s")
+    print(f"P95 latency     : {p95_latency}s")
+    print(f"Throughput      : {throughput} QPS")
+    print(f"Avg similarity  : {avg_score}")
 
     # 3. Cleanup
     store.client.delete_collection(collection_name)
@@ -135,12 +135,12 @@ def run_benchmark() -> None:
     Loads all Cloud documents, runs each model and saves results.
     Results are saved to backend/results/benchmarks/.
     """
-    print("🚀 CloudMind — Embedding Models Benchmark")
+    print("CloudMind — Embedding Models Benchmark")
     print(f"Models  : {[m.name for m in config.benchmark.embedding_models]}")
     print(f"N runs  : {config.benchmark.n_runs}")
 
     # Load + preprocess documents
-    print("\n📥 Loading documents...")
+    print("\nLoading documents...")
     documents = []
     documents.extend(PDFLoader(config.benchmark.cloud_docs_path).load())
     documents.extend(MarkdownLoader(config.benchmark.cloud_docs_path).load())
@@ -151,11 +151,11 @@ def run_benchmark() -> None:
         chunk_size=config.benchmark.chunk_size,
         chunk_overlap=config.rag.chunk_overlap
     ).split(documents)
-    print(f"✅ {len(chunks)} chunks ready")
+    print(f"{len(chunks)} chunks ready")
 
     # Load queries
     queries = load_queries()
-    print(f"✅ {len(queries)} queries loaded")
+    print(f"{len(queries)} queries loaded")
 
     # Run benchmark for each model
     results = []
@@ -175,10 +175,10 @@ def run_benchmark() -> None:
         writer.writeheader()
         writer.writerows(results)
 
-    print(f"\n✅ Results saved to {results_path}")
+    print(f"\nResults saved to {results_path}")
 
     # Print summary
-    print("\n📊 EMBEDDING BENCHMARK SUMMARY")
+    print("\nEMBEDDING BENCHMARK SUMMARY")
     print(f"{'Model':<35} {'Embed(s)':<12} {'Index(s)':<12} {'Search(s)':<12} {'P95(s)':<10} {'QPS':<10} {'Similarity':<10}")
     print("-" * 101)
     for r in results:

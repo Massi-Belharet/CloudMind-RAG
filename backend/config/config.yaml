@@ -26,6 +26,7 @@ benchmark:
   cloud_docs_path: "backend/data/raw/cloud_docs"
   csv_path: "backend/data/raw"
   queries_path: "backend/data/benchmark/queries.json"
+  ground_truth_path: "backend/data/benchmark/ground_truth.json"
   n_runs: 5
   top_k: 5
   chunk_size: 1000

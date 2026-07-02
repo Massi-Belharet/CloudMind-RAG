@@ -1,0 +1,29 @@
+[
+  {
+    "model": "nomic-ai/nomic-embed-text-v1.5",
+    "dim": 768,
+    "n_queries": 10,
+    "top_k": 5,
+    "recall_at_5": 0.7,
+    "mrr": 0.4233,
+    "ndcg_at_5": 0.4905
+  },
+  {
+    "model": "BAAI/bge-m3",
+    "dim": 1024,
+    "n_queries": 10,
+    "top_k": 5,
+    "recall_at_5": 0.7,
+    "mrr": 0.55,
+    "ndcg_at_5": 0.5893
+  },
+  {
+    "model": "Qwen/Qwen3-Embedding-0.6B",
+    "dim": 1024,
+    "n_queries": 10,
+    "top_k": 5,
+    "recall_at_5": 0.5,
+    "mrr": 0.3533,
+    "ndcg_at_5": 0.3887
+  }
+]

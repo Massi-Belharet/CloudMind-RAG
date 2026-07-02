@@ -54,6 +54,7 @@ class BenchmarkConfig(BaseModel):
     cloud_docs_path: str
     csv_path: str
     queries_path: str
+    ground_truth_path: str
     n_runs: int
     top_k: int
     chunk_size: int = 500
