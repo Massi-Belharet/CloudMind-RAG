@@ -1,0 +1,38 @@
+[
+  {
+    "model": "nomic-ai/nomic-embed-text-v1.5",
+    "dim": 768,
+    "n_documents": 7219,
+    "n_queries": 10,
+    "embedding_time_s": 219.4106,
+    "indexing_time_s": 8.7531,
+    "avg_search_time_s": 0.0161,
+    "p95_latency_s": 0.0299,
+    "throughput_qps": 62.17,
+    "avg_similarity_score": 0.7509
+  },
+  {
+    "model": "BAAI/bge-m3",
+    "dim": 1024,
+    "n_documents": 7219,
+    "n_queries": 10,
+    "embedding_time_s": 110.2389,
+    "indexing_time_s": 7.9422,
+    "avg_search_time_s": 0.0211,
+    "p95_latency_s": 0.0311,
+    "throughput_qps": 47.34,
+    "avg_similarity_score": 0.659
+  },
+  {
+    "model": "Qwen/Qwen3-Embedding-0.6B",
+    "dim": 1024,
+    "n_documents": 7219,
+    "n_queries": 10,
+    "embedding_time_s": 357.2363,
+    "indexing_time_s": 8.93,
+    "avg_search_time_s": 0.0151,
+    "p95_latency_s": 0.0262,
+    "throughput_qps": 66.08,
+    "avg_similarity_score": 0.6888
+  }
+]
