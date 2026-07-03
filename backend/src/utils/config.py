@@ -10,6 +10,7 @@ Functions:
 
 from pathlib import Path
 from pydantic import BaseModel
+from typing import List
 import yaml
 
 
@@ -20,6 +21,7 @@ class EmbeddingConfig(BaseModel):
     dim: int
     document_prefix: str = ""
     query_prefix: str = ""
+    use_fp16: bool = False
 
 
 class RAGConfig(BaseModel):
@@ -37,18 +39,28 @@ class RerankerConfig(BaseModel):
 class LLMConfig(BaseModel):
     model: str
     multi_query_model: str
+    ragas_judge_model: str = "llama3.1:8b"
 
 class MultiQueryConfig(BaseModel):
     n_queries: int
 
+class EmbeddingModelConfig(BaseModel):
+    name: str
+    dim: int
+    document_prefix: str = ""
+    query_prefix: str = ""
+    batch_size: int = 8
+    use_fp16: bool = False
 
 class BenchmarkConfig(BaseModel):
     cloud_docs_path: str
     csv_path: str
     queries_path: str
+    ground_truth_path: str
     n_runs: int
     top_k: int
-
+    chunk_size: int = 500
+    embedding_models: List[EmbeddingModelConfig]
 
 class PathsConfig(BaseModel):
     data_raw: str

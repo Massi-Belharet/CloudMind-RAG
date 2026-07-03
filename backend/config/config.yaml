@@ -1,8 +1,9 @@
 embedding:
-  model: "nomic-ai/nomic-embed-text-v1.5"
-  dim: 768
-  document_prefix: "search_document: "
-  query_prefix: "search_query: "
+  model: "BAAI/bge-m3"
+  dim: 1024
+  document_prefix: ""
+  query_prefix: ""
+  use_fp16: true
 
 rag:
   chunk_size: 500
@@ -21,13 +22,35 @@ multi_query:
 llm:
   model: "qwen3.5:9b"
   multi_query_model: "llama3.2:1b"
+  ragas_judge_model: "llama3.1:8b"
 
 benchmark:
   cloud_docs_path: "backend/data/raw/cloud_docs"
   csv_path: "backend/data/raw"
   queries_path: "backend/data/benchmark/queries.json"
+  ground_truth_path: "backend/data/benchmark/ground_truth.json"
   n_runs: 5
   top_k: 5
+  chunk_size: 1000
+  embedding_models:
+    - name: "nomic-ai/nomic-embed-text-v1.5"
+      dim: 768
+      document_prefix: "search_document: "
+      query_prefix: "search_query: "
+      batch_size: 32
+      use_fp16: false
+    - name: "BAAI/bge-m3"
+      dim: 1024
+      document_prefix: ""
+      query_prefix: ""
+      batch_size: 8
+      use_fp16: true
+    - name: "Qwen/Qwen3-Embedding-0.6B"
+      dim: 1024
+      document_prefix: ""
+      query_prefix: "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: "
+      batch_size: 8
+      use_fp16: true
 
 paths:
   data_raw: "backend/data/raw"
