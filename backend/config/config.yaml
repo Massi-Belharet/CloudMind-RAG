@@ -56,3 +56,6 @@ paths:
   data_raw: "backend/data/raw"
   results: "backend/results"
   storage: "backend/data/processed"
+
+api:
+  collection_name: "cloudmind_prod"

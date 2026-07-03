@@ -67,6 +67,9 @@ class PathsConfig(BaseModel):
     results: str
     storage: str
 
+class ApiConfig(BaseModel):
+    collection_name: str
+
 
 class AppConfig(BaseModel):
     embedding: EmbeddingConfig
@@ -76,6 +79,7 @@ class AppConfig(BaseModel):
     paths: PathsConfig
     reranker: RerankerConfig
     multi_query: MultiQueryConfig
+    api: ApiConfig
 
 
 # Loader 
