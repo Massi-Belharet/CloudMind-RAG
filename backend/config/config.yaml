@@ -20,7 +20,7 @@ multi_query:
   n_queries: 3
 
 llm:
-  model: "qwen3.5:9b"
+  model: "llama3.1:8b"
   multi_query_model: "llama3.2:1b"
   ragas_judge_model: "llama3.1:8b"
 
