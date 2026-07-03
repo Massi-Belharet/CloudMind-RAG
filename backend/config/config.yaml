@@ -22,6 +22,7 @@ multi_query:
 llm:
   model: "qwen3.5:9b"
   multi_query_model: "llama3.2:1b"
+  ragas_judge_model: "llama3.1:8b"
 
 benchmark:
   cloud_docs_path: "backend/data/raw/cloud_docs"
