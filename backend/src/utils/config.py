@@ -39,6 +39,7 @@ class RerankerConfig(BaseModel):
 class LLMConfig(BaseModel):
     model: str
     multi_query_model: str
+    ragas_judge_model: str = "llama3.1:8b"
 
 class MultiQueryConfig(BaseModel):
     n_queries: int

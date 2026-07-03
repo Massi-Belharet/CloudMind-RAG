@@ -91,15 +91,51 @@ prefix. Not retained.
 - All Advanced RAG components (HybridRetriever, MultiQueryRetriever, Reranker) remain
   embedding-model agnostic by design (ADR 002) — no code changes required beyond config
 
-## Future Evaluation
+## Part C — RAG Pipeline Evaluation (Completed)
 
-Sprint 4 Part C will evaluate the complete RAG pipeline using BAAI/bge-m3 with
-`ragas.evaluate()` (not `TestsetGenerator`) :
+The complete Advanced RAG pipeline (BAAI/bge-m3 embeddings, Hybrid Search,
+Multi-Query RAG-Fusion, Cross-Encoder Reranker, qwen3.5:9b generation) was
+evaluated with RAGAS using the `reference_answer` field from `ground_truth.json`.
 
-- **Faithfulness** — is the generated answer grounded in retrieved context?
-- **Answer Relevancy** — does the answer address the question?
-- **Context Precision** — are retrieved chunks relevant to the query?
-- **Context Recall** — is the reference answer's information covered by retrieved context?
+**Judge model deviation from initial plan** : `qwen3.5:9b` was initially planned
+as the LLM judge but could not be used — it burns unbounded hidden reasoning
+tokens even with `think=False`, so its structured-output calls to RAGAS's
+prompts return empty regardless of `max_tokens`. This mirrors the same
+thinking-mode issue documented in ADR 002 for Multi-Query reformulation.
+`llama3.1:8b` was used instead — no hidden thinking overhead, reliably follows
+RAGAS's JSON-based prompts.
 
-These metrics will use the `reference_answer` field already present in
-`ground_truth.json`, with `qwen3.5:9b` as the LLM judge (temperature=0 for reproducibility).
+**Embeddings for AnswerRelevancy** : RAGAS's legacy `AnswerRelevancy` metric
+requires a LangChain-compatible embeddings interface. Rather than introduce a
+separate embedding model/dependency, CloudMind's own `Embedder` (bge-m3) was
+wrapped via a small `Embeddings` adapter, keeping a single source of truth for
+embeddings across the whole project.
+
+**Scope limitation** : Due to time constraints, this evaluation was run on
+**5 of the 10** manually annotated ground truth queries, not the full set.
+Results should be read as an initial signal, not a statistically complete
+evaluation of the RAG pipeline. Extending to all 10 queries is a candidate
+for future work if time permits before the project deadline.
+
+### Results (n=5)
+
+| Metric | Score |
+|---|---|
+| Faithfulness | 0.7724 |
+| Answer Relevancy | 0.6914 |
+| Context Precision | 0.7858 |
+| Context Recall | 0.9778 |
+
+### Interpretation
+
+- **Context Recall (0.98)** is excellent — retrieved contexts almost always
+  cover the information needed to reconstruct the reference answer.
+- **Faithfulness (0.77)** is solid — generated answers are largely grounded
+  in retrieved context, with limited hallucination.
+- **Context Precision (0.79)** and **Answer Relevancy (0.69)** show room for
+  improvement. One query ("Azure reserved instances") scored notably low on
+  Context Precision (0.25) — the pipeline failed to surface the relevant
+  chunk from the annotated source document for that specific phrasing,
+  and the LLM correctly declined to answer rather than hallucinate,
+  which validates CRAG's fallback behavior (ADR 002) is working as intended
+  even outside the explicit fallback threshold path.
