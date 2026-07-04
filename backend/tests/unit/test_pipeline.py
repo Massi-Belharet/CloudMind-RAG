@@ -9,6 +9,7 @@ import numpy as np
 from src.loaders.base_loader import Document
 from src.rag.pipeline import Pipeline
 from src.rag.reranker import Reranker
+from src.rag.semantic_router import SemanticRouter
 from src.vectorstores.base_vectorstore import PersistableStore
 
 
@@ -95,6 +96,13 @@ def mock_reranker(sample_chunks):
     reranker = MagicMock(spec=Reranker)
     reranker.rerank.return_value = sample_chunks
     return reranker
+
+
+@pytest.fixture
+def mock_router():
+    router = MagicMock(spec=SemanticRouter)
+    router.route.return_value = "aws"
+    return router
 
 
 @pytest.fixture
@@ -203,7 +211,7 @@ class TestAsk:
 
     def test_ask_calls_retriever(self, pipeline, mock_retriever):
         pipeline.ask("What are AWS best practices?", k=3)
-        mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=3)
+        mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=3, filter_provider=None)
 
     def test_ask_calls_generator(self, pipeline, mock_generator):
         pipeline.ask("What are AWS best practices?")
@@ -211,7 +219,7 @@ class TestAsk:
 
     def test_ask_default_k_is_5(self, pipeline, mock_retriever):
         pipeline.ask("What are AWS best practices?")
-        mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=5)
+        mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=5, filter_provider=None)
 
 
 # Pipeline.ask() — with reranker 
@@ -224,7 +232,7 @@ class TestAskWithReranker:
 
     def test_ask_with_reranker_retrieves_2k_candidates(self, pipeline_with_reranker, mock_retriever):
         pipeline_with_reranker.ask("What are AWS best practices?", k=3)
-        mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=6)
+        mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=6, filter_provider=None)
 
     def test_ask_without_reranker_skips_rerank(self, pipeline, mock_reranker):
         pipeline.ask("What are AWS best practices?", k=3)
@@ -232,10 +240,65 @@ class TestAskWithReranker:
 
     def test_ask_without_reranker_retrieves_exact_k(self, pipeline, mock_retriever):
         pipeline.ask("What are AWS best practices?", k=3)
-        mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=3)
+        mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=3, filter_provider=None)
 
 
-# Pipeline.ask() — CRAG 
+# Pipeline.ask() — with router
+
+class TestAskWithRouter:
+
+    def test_ask_without_router_never_routes(self, pipeline, mock_retriever):
+        # No router configured (default None) — behavior identical to today
+        pipeline.ask("What are AWS best practices?", k=3)
+        mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=3, filter_provider=None)
+
+    def test_ask_with_router_calls_route_once(self, mock_loader, mock_cleaner, mock_splitter, mock_embedder, mock_vectorstore, mock_retriever, mock_generator, mock_router):
+        pipeline = Pipeline(
+            loaders=[mock_loader],
+            cleaner=mock_cleaner,
+            splitter=mock_splitter,
+            embedder=mock_embedder,
+            vectorstore=mock_vectorstore,
+            retriever=mock_retriever,
+            generator=mock_generator,
+            router=mock_router
+        )
+        pipeline.ask("What are AWS best practices?", k=3)
+        mock_router.route.assert_called_once_with("What are AWS best practices?")
+
+    def test_ask_with_router_passes_detected_provider_to_retriever(self, mock_loader, mock_cleaner, mock_splitter, mock_embedder, mock_vectorstore, mock_retriever, mock_generator, mock_router):
+        pipeline = Pipeline(
+            loaders=[mock_loader],
+            cleaner=mock_cleaner,
+            splitter=mock_splitter,
+            embedder=mock_embedder,
+            vectorstore=mock_vectorstore,
+            retriever=mock_retriever,
+            generator=mock_generator,
+            router=mock_router
+        )
+        pipeline.ask("What are AWS best practices?", k=3)
+        mock_retriever.retrieve.assert_called_once_with("What are AWS best practices?", k=3, filter_provider="aws")
+
+    def test_ask_with_router_returning_none_searches_all_providers(self, mock_loader, mock_cleaner, mock_splitter, mock_embedder, mock_vectorstore, mock_retriever, mock_generator, mock_router):
+        mock_router.route.return_value = None
+        pipeline = Pipeline(
+            loaders=[mock_loader],
+            cleaner=mock_cleaner,
+            splitter=mock_splitter,
+            embedder=mock_embedder,
+            vectorstore=mock_vectorstore,
+            retriever=mock_retriever,
+            generator=mock_generator,
+            router=mock_router
+        )
+        pipeline.ask("How to optimize Kubernetes in a multi-cloud setup?", k=3)
+        mock_retriever.retrieve.assert_called_once_with(
+            "How to optimize Kubernetes in a multi-cloud setup?", k=3, filter_provider=None
+        )
+
+
+# Pipeline.ask() — CRAG
 
 class TestCRAG:
 

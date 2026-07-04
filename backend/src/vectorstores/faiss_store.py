@@ -8,14 +8,14 @@ pipeline before benchmarking against Qdrant and Pgvector in Sprint 2.
 
 Functions:
     add(documents: List[Document], vectors: np.ndarray) -> None : Add documents and vectors to the index.
-    search(query_vector: np.ndarray, k: int) -> List[Document] : Search for k most similar documents.
+    search(query_vector: np.ndarray, k: int, filter_provider: Optional[str]) -> List[Document] : Search for k most similar documents.
     save(path: str) -> None : Persist index and documents to disk.
     load(path: str) -> None : Load index and documents from disk.
 """
 
 import os
 import json
-from typing import List
+from typing import List, Optional
 import numpy as np
 import faiss
 
@@ -54,18 +54,27 @@ class FAISSStore(PersistableStore):
         self.index.add(vectors)
         self.documents.extend(documents)
 
-    def search(self, query_vector: np.ndarray, k: int = 5) -> List[Document]:
+    def search(self, query_vector: np.ndarray, k: int = 5, filter_provider: Optional[str] = None) -> List[Document]:
         """
         Search for the k most similar documents to the query vector.
         Query vector is normalized before search for cosine similarity.
 
         Args:
             query_vector (np.ndarray): Query vector of shape (embedding_dim,).
-            k (int): Number of results to return. 
+            k (int): Number of results to return.
+            filter_provider (Optional[str]): Accepted for interface consistency with
+                BaseVectorStore. Not implemented for FAISS (not used in production) —
+                must be None.
 
         Returns:
             List[Document]: List of k most similar documents with similarity score in metadata.
+
+        Raises:
+            NotImplementedError: If filter_provider is set.
         """
+        if filter_provider is not None:
+            raise NotImplementedError("Provider filtering is not implemented for FAISSStore.")
+
         query = np.array([query_vector]).astype("float32")
         faiss.normalize_L2(query)
         distances, indices = self.index.search(query, k)

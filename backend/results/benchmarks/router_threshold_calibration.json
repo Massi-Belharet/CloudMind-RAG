@@ -1,0 +1,276 @@
+{
+  "mono_stats": {
+    "min": 0.4448,
+    "max": 0.709,
+    "mean": 0.5702,
+    "median": 0.5806
+  },
+  "multi_stats": {
+    "min": 0.4802,
+    "max": 0.5854,
+    "mean": 0.531,
+    "median": 0.5282
+  },
+  "recommended_threshold": 0.5987,
+  "rationale": "Score distributions overlap (max multi-provider 0.5854 >= min mono-provider 0.4448) \u2014 no threshold cleanly separates both groups. Threshold biased upward, just above the highest multi-provider score (0.5854 + 0.0132 margin), since failing to route (safe default: search all providers) is preferable to wrongly routing a multi-provider question to a single one. Check the misclassified examples below before finalizing.",
+  "results": [
+    {
+      "query": "What are the AWS Well-Architected Framework cost optimization pillars?",
+      "category": "mono",
+      "expected_provider": "aws",
+      "expected_provider_score": 0.6187,
+      "all_scores": {
+        "aws": 0.6187,
+        "azure": 0.5303,
+        "gcp": 0.4399,
+        "compliance": 0.302
+      }
+    },
+    {
+      "query": "How do I set up IAM roles for AWS Lambda functions?",
+      "category": "mono",
+      "expected_provider": "aws",
+      "expected_provider_score": 0.5674,
+      "all_scores": {
+        "aws": 0.5674,
+        "azure": 0.3833,
+        "gcp": 0.2837,
+        "compliance": 0.3291
+      }
+    },
+    {
+      "query": "What is the Amazon S3 storage class for infrequent access?",
+      "category": "mono",
+      "expected_provider": "aws",
+      "expected_provider_score": 0.4448,
+      "all_scores": {
+        "aws": 0.4448,
+        "azure": 0.3237,
+        "gcp": 0.2788,
+        "compliance": 0.2607
+      }
+    },
+    {
+      "query": "How to configure AWS CloudTrail for audit logging?",
+      "category": "mono",
+      "expected_provider": "aws",
+      "expected_provider_score": 0.4819,
+      "all_scores": {
+        "aws": 0.4819,
+        "azure": 0.4038,
+        "gcp": 0.3911,
+        "compliance": 0.4028
+      }
+    },
+    {
+      "query": "How to reduce Azure cloud spending using reserved instances?",
+      "category": "mono",
+      "expected_provider": "azure",
+      "expected_provider_score": 0.604,
+      "all_scores": {
+        "aws": 0.4937,
+        "azure": 0.604,
+        "gcp": 0.4231,
+        "compliance": 0.3506
+      }
+    },
+    {
+      "query": "What is Azure Blob Storage used for?",
+      "category": "mono",
+      "expected_provider": "azure",
+      "expected_provider_score": 0.6484,
+      "all_scores": {
+        "aws": 0.4614,
+        "azure": 0.6484,
+        "gcp": 0.4153,
+        "compliance": 0.3564
+      }
+    },
+    {
+      "query": "How do I configure Azure Active Directory conditional access?",
+      "category": "mono",
+      "expected_provider": "azure",
+      "expected_provider_score": 0.5186,
+      "all_scores": {
+        "aws": 0.4504,
+        "azure": 0.5186,
+        "gcp": 0.2903,
+        "compliance": 0.3533
+      }
+    },
+    {
+      "query": "What are Azure Virtual Machine scale sets?",
+      "category": "mono",
+      "expected_provider": "azure",
+      "expected_provider_score": 0.5146,
+      "all_scores": {
+        "aws": 0.4565,
+        "azure": 0.5146,
+        "gcp": 0.3738,
+        "compliance": 0.3267
+      }
+    },
+    {
+      "query": "How to optimize BigQuery costs in Google Cloud?",
+      "category": "mono",
+      "expected_provider": "gcp",
+      "expected_provider_score": 0.6211,
+      "all_scores": {
+        "aws": 0.4541,
+        "azure": 0.4617,
+        "gcp": 0.6211,
+        "compliance": 0.373
+      }
+    },
+    {
+      "query": "What is Google Kubernetes Engine Autopilot mode?",
+      "category": "mono",
+      "expected_provider": "gcp",
+      "expected_provider_score": 0.4492,
+      "all_scores": {
+        "aws": 0.3223,
+        "azure": 0.2805,
+        "gcp": 0.4492,
+        "compliance": 0.2917
+      }
+    },
+    {
+      "query": "How do I configure Cloud Run for GCP serverless deployments?",
+      "category": "mono",
+      "expected_provider": "gcp",
+      "expected_provider_score": 0.5825,
+      "all_scores": {
+        "aws": 0.4836,
+        "azure": 0.4219,
+        "gcp": 0.5825,
+        "compliance": 0.4338
+      }
+    },
+    {
+      "query": "What are the GCP Cost Optimization pillar best practices?",
+      "category": "mono",
+      "expected_provider": "gcp",
+      "expected_provider_score": 0.5142,
+      "all_scores": {
+        "aws": 0.3611,
+        "azure": 0.3591,
+        "gcp": 0.5142,
+        "compliance": 0.3381
+      }
+    },
+    {
+      "query": "How to implement data residency compliance under RGPD for cloud workloads?",
+      "category": "mono",
+      "expected_provider": "compliance",
+      "expected_provider_score": 0.709,
+      "all_scores": {
+        "aws": 0.4534,
+        "azure": 0.4072,
+        "gcp": 0.4546,
+        "compliance": 0.709
+      }
+    },
+    {
+      "query": "How does the EU Cloud Code of Conduct define security obligations?",
+      "category": "mono",
+      "expected_provider": "compliance",
+      "expected_provider_score": 0.627,
+      "all_scores": {
+        "aws": 0.4353,
+        "azure": 0.3975,
+        "gcp": 0.4395,
+        "compliance": 0.627
+      }
+    },
+    {
+      "query": "What is required for a Data Processing Agreement under GDPR?",
+      "category": "mono",
+      "expected_provider": "compliance",
+      "expected_provider_score": 0.5786,
+      "all_scores": {
+        "aws": 0.4106,
+        "azure": 0.3647,
+        "gcp": 0.3599,
+        "compliance": 0.5786
+      }
+    },
+    {
+      "query": "What are the requirements for data residency in the EU under GDPR?",
+      "category": "mono",
+      "expected_provider": "compliance",
+      "expected_provider_score": 0.6436,
+      "all_scores": {
+        "aws": 0.3357,
+        "azure": 0.3037,
+        "gcp": 0.3376,
+        "compliance": 0.6436
+      }
+    },
+    {
+      "query": "How to optimize Kubernetes workloads for cost efficiency in a multi-cloud setup?",
+      "category": "multi",
+      "max_score": 0.5723,
+      "all_scores": {
+        "aws": 0.4875,
+        "azure": 0.4998,
+        "gcp": 0.5723,
+        "compliance": 0.4224
+      }
+    },
+    {
+      "query": "What is the difference between hybrid cloud and multi-cloud architecture?",
+      "category": "multi",
+      "max_score": 0.4915,
+      "all_scores": {
+        "aws": 0.4539,
+        "azure": 0.46,
+        "gcp": 0.4915,
+        "compliance": 0.4089
+      }
+    },
+    {
+      "query": "How to architect an Edge computing solution with low latency requirements?",
+      "category": "multi",
+      "max_score": 0.4949,
+      "all_scores": {
+        "aws": 0.4949,
+        "azure": 0.4263,
+        "gcp": 0.4543,
+        "compliance": 0.3877
+      }
+    },
+    {
+      "query": "What are the FinOps principles for managing cloud budget anomalies?",
+      "category": "multi",
+      "max_score": 0.4802,
+      "all_scores": {
+        "aws": 0.4802,
+        "azure": 0.4436,
+        "gcp": 0.4644,
+        "compliance": 0.4233
+      }
+    },
+    {
+      "query": "How to compare cost optimization strategies across AWS, Azure and GCP?",
+      "category": "multi",
+      "max_score": 0.5854,
+      "all_scores": {
+        "aws": 0.5591,
+        "azure": 0.5532,
+        "gcp": 0.5854,
+        "compliance": 0.3911
+      }
+    },
+    {
+      "query": "What is a good cloud governance framework for enterprises?",
+      "category": "multi",
+      "max_score": 0.5615,
+      "all_scores": {
+        "aws": 0.5615,
+        "azure": 0.521,
+        "gcp": 0.5459,
+        "compliance": 0.4988
+      }
+    }
+  ]
+}

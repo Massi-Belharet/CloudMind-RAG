@@ -11,13 +11,13 @@ FAISS requires explicit save/load — it implements PersistableStore.
 
 Functions:
     add(documents: List[Document], vectors: np.ndarray) -> None : Add documents and vectors.
-    search(query_vector: np.ndarray, k: int) -> List[Document] : Search for k most similar documents.
+    search(query_vector: np.ndarray, k: int, filter_provider: Optional[str]) -> List[Document] : Search for k most similar documents, optionally restricted to one provider.
     save(path: str) -> None : Persist the store to disk (PersistableStore only).
     load(path: str) -> None : Load the store from disk (PersistableStore only).
 """
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 import numpy as np
 
 from src.loaders.base_loader import Document
@@ -46,13 +46,15 @@ class BaseVectorStore(ABC):
         pass
 
     @abstractmethod
-    def search(self, query_vector: np.ndarray, k: int = 5) -> List[Document]:
+    def search(self, query_vector: np.ndarray, k: int = 5, filter_provider: Optional[str] = None) -> List[Document]:
         """
         Search for the k most similar documents to the query vector.
 
         Args:
             query_vector (np.ndarray): Query vector of shape (embedding_dim,).
             k (int): Number of results to return. Defaults to 5.
+            filter_provider (Optional[str]): If set, restrict results to this provider.
+                Defaults to None, which searches across all providers (unchanged behavior).
 
         Returns:
             List[Document]: List of k most similar documents.
