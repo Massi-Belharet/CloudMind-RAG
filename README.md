@@ -6,8 +6,7 @@
 
 CloudMind is an Advanced RAG pipeline that helps teams make informed decisions
 about their cloud infrastructure by querying official documentation, best
-practices, and FinOps data from AWS, Azure, GCP, and compliance sources
-(GDPR/RGPD, EU Cloud Code of Conduct, ISO 27001).
+practices, and FinOps data from AWS, Azure, GCP, and compliance sources.
 
 ## Architecture
 
@@ -22,13 +21,13 @@ CRAG relevance gating, and streamed generation.)*
 | Layer | Technology |
 |---|---|
 | Language / package manager | Python 3.13, [uv](https://docs.astral.sh/uv/) |
-| Vector store | [Qdrant](https://qdrant.tech/) (production) — see [ADR 001](docs/adr/001-vector-store-choice.md) |
-| Embedding model | `BAAI/bge-m3` (1024-dim, fp16) — see [ADR 003](docs/adr/003-embedding-model-choice.md) |
+| Vector store | [Qdrant](https://qdrant.tech/) (production) see [ADR 001](docs/adr/001-vector-store-choice.md) |
+| Embedding model | `BAAI/bge-m3` (1024-dim, fp16) see [ADR 003](docs/adr/003-embedding-model-choice.md) |
 | Reranker | `BAAI/bge-reranker-v2-m3` (cross-encoder) |
 | Generation LLM | `llama3.1:8b` (via Ollama) |
 | Multi-Query reformulation LLM | `llama3.2:1b` (via Ollama) |
 | Backend framework | FastAPI + Uvicorn, streamed responses (SSE) |
-| Frontend framework | React 19 + Vite, ChatGPT-style multi-conversation UI |
+| Frontend framework | React 19 + Vite |
 | Observability | LangSmith (full pipeline tracing) |
 | Infrastructure | Docker Compose — Qdrant, Pgvector, backend (GPU), frontend (nginx) |
 
@@ -85,12 +84,26 @@ ollama pull llama3.1:8b     # Generation
 ollama pull llama3.2:1b     # Multi-Query reformulation
 ```
 
-- A `.env` file at the repo root (copy `.env.example`) with your Qdrant,
-  Pgvector, Ollama, and LangSmith settings.
+- A `.env` file at the repo root, then fill in your Qdrant, Pgvector, Ollama,
+  and LangSmith settings:
+
+```bash
+cp .env.example .env
+```
 
 In **both** methods below, the Qdrant index must be built **once** before the
 backend answers questions for the first time — `backend/src/api/build_index.py`
 is a one-shot script, the API never re-indexes on its own.
+
+> **Re-running `build_index.py`**: it always writes points with IDs starting
+> at 0, so running it a second time without clearing the collection first can
+> overwrite or leave stale points if the source corpus changed size. If you
+> need to rebuild the index (corpus updated, or after any failed first run),
+> delete the collection first:
+> ```bash
+> curl -X DELETE http://localhost:6333/collections/cloudmind_prod
+> ```
+> then re-run `build_index.py` as shown below.
 
 ### Method A — Docker (recommended)
 
