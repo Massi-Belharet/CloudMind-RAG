@@ -1,5 +1,5 @@
 """
-Hybrid Retriever module 
+Hybrid Retriever module
 
 Combines BM25 lexical search with dense semantic search using
 Reciprocal Rank Fusion (RRF) to improve retrieval quality.
@@ -7,10 +7,10 @@ BM25 captures exact keyword matches while dense search captures
 semantic similarity, together they cover both precise and fuzzy queries.
 
 Functions:
-    retrieve(query: str, k: int) -> List[Document] : Retrieve top-k documents using hybrid search.
+    retrieve(query: str, k: int, filter_provider: Optional[str]) -> List[Document] : Retrieve top-k documents using hybrid search, optionally restricted to one provider.
 """
 
-from typing import List
+from typing import List, Optional
 from rank_bm25 import BM25Okapi
 
 from src.loaders.base_loader import Document
@@ -64,20 +64,29 @@ class HybridRetriever:
 
         return [self.documents[i] for i in top_k_indices]
 
-    def retrieve(self, query: str, k: int = 5) -> List[Document]:
+    def retrieve(self, query: str, k: int = 5, filter_provider: Optional[str] = None) -> List[Document]:
         """
         Retrieve top-k documents using hybrid BM25 + dense search with RRF fusion.
 
         Args:
             query (str): User question to search for.
             k (int): Number of documents to retrieve. Defaults to 5.
+            filter_provider (Optional[str]): If set, restrict results to this provider.
+                Relayed natively to the dense search. The BM25 index is built once
+                over the full corpus at initialization (no per-provider index), so
+                BM25 results are instead filtered after the fact by comparing each
+                candidate's 'provider' metadata. Defaults to None, which searches
+                across all providers (unchanged behavior).
 
         Returns:
             List[Document]: Top-k most relevant documents after RRF fusion.
         """
         # Retrieve 2*k candidates from each method before fusion
         bm25_results = self._bm25_search(query, k=k * 2)
-        dense_results = self.retriever.retrieve(query, k=k * 2)
+        if filter_provider is not None:
+            bm25_results = [doc for doc in bm25_results if doc.metadata.get("provider") == filter_provider]
+
+        dense_results = self.retriever.retrieve(query, k=k * 2, filter_provider=filter_provider)
 
         return rrf_fusion(
             ranked_lists=[bm25_results, dense_results],

@@ -1,0 +1,119 @@
+{
+  "top_k": 5,
+  "positive_stats": {
+    "min": 0.0145,
+    "max": 0.9899,
+    "mean": 0.4046,
+    "median": 0.2675
+  },
+  "negative_stats": {
+    "min": 0.0,
+    "max": 0.0113,
+    "mean": 0.0021,
+    "median": 0.0003
+  },
+  "recommended_threshold": 0.0129,
+  "rationale": "Clean separation: all negatives (0.0113 max) score below all positives (0.0145 min). Threshold placed at the midpoint of that gap for maximum margin.",
+  "results": [
+    {
+      "query": "What are the AWS Well-Architected Framework cost optimization pillars?",
+      "score": 0.98994140625,
+      "category": "positive"
+    },
+    {
+      "query": "How to implement data residency compliance under RGPD for cloud workloads?",
+      "score": 0.12027587890625,
+      "category": "positive"
+    },
+    {
+      "query": "What is the difference between hybrid cloud and multi-cloud architecture?",
+      "score": 0.733935546875,
+      "category": "positive"
+    },
+    {
+      "query": "How to reduce Azure cloud spending using reserved instances?",
+      "score": 0.04321022033691406,
+      "category": "positive"
+    },
+    {
+      "query": "What are the AWS best practices for sustainable and green cloud infrastructure?",
+      "score": 0.8328125,
+      "category": "positive"
+    },
+    {
+      "query": "How does the EU Cloud Code of Conduct define security obligations?",
+      "score": 0.2642578125,
+      "category": "positive"
+    },
+    {
+      "query": "What are the FinOps principles for managing cloud budget anomalies?",
+      "score": 0.07610588073730469,
+      "category": "positive"
+    },
+    {
+      "query": "How to architect an Edge computing solution with low latency requirements?",
+      "score": 0.014473342895507812,
+      "category": "positive"
+    },
+    {
+      "query": "What security controls are required for ISO 27001 compliance on AWS?",
+      "score": 0.69970703125,
+      "category": "positive"
+    },
+    {
+      "query": "How to optimize Kubernetes workloads for cost efficiency in a multi-cloud setup?",
+      "score": 0.270831298828125,
+      "category": "positive"
+    },
+    {
+      "query": "What is Python?",
+      "score": 0.011269617080688476,
+      "category": "negative"
+    },
+    {
+      "query": "What is the price of a Tesla Model S?",
+      "score": 0.0028614521026611326,
+      "category": "negative"
+    },
+    {
+      "query": "What's the weather like today?",
+      "score": 0.00038433074951171875,
+      "category": "negative"
+    },
+    {
+      "query": "Who won the last football World Cup?",
+      "score": 6.058216094970703e-05,
+      "category": "negative"
+    },
+    {
+      "query": "How do I bake a chocolate cake?",
+      "score": 1.7118453979492187e-05,
+      "category": "negative"
+    },
+    {
+      "query": "How many bones are in the human body?",
+      "score": 0.004613304138183593,
+      "category": "negative"
+    },
+    {
+      "query": "What year did World War II end?",
+      "score": 2.1409988403320312e-05,
+      "category": "negative"
+    },
+    {
+      "query": "How do I train for a marathon?",
+      "score": 0.00022977590560913086,
+      "category": "negative"
+    },
+    {
+      "query": "What's the capital of Japan?",
+      "score": 0.0019318699836730958,
+      "category": "negative"
+    },
+    {
+      "query": "Who wrote Romeo and Juliet?",
+      "score": 2.7441978454589842e-05,
+      "category": "negative"
+    }
+  ]
+}

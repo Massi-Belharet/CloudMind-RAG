@@ -17,12 +17,34 @@ import numpy as np
 from src.embeddings.base_embeddings import BaseEmbedder
 
 
-# Reference descriptions per provider (used to build route embeddings)
+# Reference descriptions per provider (used to build route embeddings).
+# Written as natural-language sentences rather than keyword lists: short
+# keyword strings under-discriminate against real user questions once
+# embedded with bge-m3 (see backend/scripts/calibrate_router_threshold.py).
 ROUTE_DESCRIPTIONS = {
-    "aws": "AWS Amazon Web Services EC2 S3 Lambda RDS CloudFront IAM cost optimization billing",
-    "azure": "Azure Microsoft cloud virtual machines blob storage cost management resource groups",
-    "gcp": "GCP Google Cloud Platform BigQuery Cloud Run Kubernetes Engine billing export",
-    "compliance": "RGPD GDPR compliance data residency EU regulation personal data processing",
+    "aws": (
+        "Questions about Amazon Web Services (AWS) cloud infrastructure and services, "
+        "such as EC2 virtual machines, S3 storage, Lambda serverless functions, RDS "
+        "databases, CloudFront CDN, and IAM access management, including the AWS "
+        "Well-Architected Framework and AWS-specific cost optimization and billing."
+    ),
+    "azure": (
+        "Questions about Microsoft Azure cloud infrastructure and services, such as "
+        "Azure virtual machines, Blob Storage, Azure Active Directory, and resource "
+        "groups, including the Azure Well-Architected Framework and Azure-specific "
+        "cost management, reserved instances, and billing."
+    ),
+    "gcp": (
+        "Questions about Google Cloud Platform (GCP) infrastructure and services, "
+        "such as BigQuery, Cloud Run, Google Kubernetes Engine, and Cloud Storage, "
+        "including the Google Cloud Architecture Framework and GCP-specific cost "
+        "optimization, billing export, and sustainability."
+    ),
+    "compliance": (
+        "Questions about regulatory and legal compliance for cloud workloads, such "
+        "as RGPD or GDPR data protection requirements, data residency, EU "
+        "regulations on personal data processing, and the EU Cloud Code of Conduct."
+    ),
 }
 
 

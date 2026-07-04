@@ -86,8 +86,9 @@ prefix. Not retained.
 - Qdrant collections must be rebuilt with 1024-dim vectors instead of 768-dim
 - `use_fp16` must stay enabled for bge-m3 on 8GB VRAM (RTX 4060) to avoid CUDA OOM,
   as established during Part A/B debugging
-- SemanticRouter's threshold (currently 0.6, tuned against nomic-v1.5's similarity
-  distribution) will need re-validation against bge-m3's distribution before Sprint 5
+- SemanticRouter's threshold needed re-validation against bge-m3's similarity
+  distribution before Sprint 5 — done, see "Sprint 5 — Router Recalibration and
+  CRAG Threshold Calibration" below
 - All Advanced RAG components (HybridRetriever, MultiQueryRetriever, Reranker) remain
   embedding-model agnostic by design (ADR 002) — no code changes required beyond config
 
@@ -139,3 +140,54 @@ for future work if time permits before the project deadline.
   and the LLM correctly declined to answer rather than hallucinate,
   which validates CRAG's fallback behavior (ADR 002) is working as intended
   even outside the explicit fallback threshold path.
+
+## Sprint 5 — Router Recalibration and CRAG Threshold Calibration
+
+Two components inherited stale, uncalibrated defaults from earlier sprints. Both were
+fixed empirically rather than by adjusting a single failing example.
+
+### SemanticRouter threshold
+
+The 0.6 threshold (ADR 002) was tuned against `nomic-embed-text-v1.5`'s similarity
+distribution. After switching to `bge-m3` (this ADR), the router was found to be
+disconnected from production entirely (see ADR 002 §4 update) — and once wired in,
+0.6 no longer separated mono-provider from multi-provider queries correctly under
+`bge-m3` (a clear AWS-specific query scored 0.588, just under threshold).
+
+Root cause was not the threshold alone: `ROUTE_DESCRIPTIONS` (keyword-style, e.g.
+`"aws ec2 s3"`) embedded poorly under `bge-m3` compared to natural-language phrasing.
+Fix: rewrote `ROUTE_DESCRIPTIONS` as natural-language sentences (no change to
+`route()`/`_cosine_similarity()`), then recalibrated on 22 queries (16 mono-provider,
+6 explicitly multi-provider) via `backend/scripts/calibrate_router_threshold.py`.
+New threshold: **0.5987** — zero dangerous false positives (no multi-provider query
+was ever incorrectly filtered) across the test set. Configured via
+`config.router.threshold`.
+
+### CRAG relevance_threshold
+
+`config.rag.relevance_threshold` was `0.0` — an untuned placeholder from Sprint 3,
+functionally permissive since `bge-reranker-v2-m3` produces unbounded logits, not
+0-1 probabilities. This let off-topic queries with superficial lexical overlap slip
+past CRAG (e.g. "What is Python?" was answered from the LLM's general knowledge
+instead of triggering the fallback, because "Python" appears in AWS/GCP SDK
+documentation despite the question being unrelated to cloud/FinOps).
+
+Calibrated via `backend/scripts/calibrate_crag_threshold.py` on 10 positive examples
+(the ground truth queries) vs 10 negative examples (clearly out-of-scope, including
+the "What is Python?" trap case). Score distributions: positives `[0.0145, 0.9899]`,
+negatives `[0.0000, 0.0113]` — a clean separation. New threshold: **0.0129**. Results
+saved to `backend/results/benchmarks/crag_threshold_calibration.json`.
+
+### Verification
+
+Both fixes were validated end-to-end post-recalibration:
+- `"What is Python?"` → CRAG fallback triggered correctly (previously answered from
+  general knowledge)
+- `"What are the AWS Well-Architected Framework cost optimization pillars?"` (k=10)
+  → AWS-only sources, no GCP contamination (previously mixed providers)
+- `"How to optimize Kubernetes workloads for cost efficiency in a multi-cloud setup?"`
+  → still correctly retrieves AWS + Azure + GCP sources (provider filter does not
+  fire on genuinely multi-provider queries)
+
+Full unit test suite (184/184) passes after both changes, including updated coverage
+in `test_qdrant_store.py`, `test_pipeline.py`, and new tests for `SemanticRouter`.

@@ -8,11 +8,11 @@ Vectors are stored in a dedicated table with document content and metadata
 Functions:
     _create_table_if_not_exists() -> None : Create the vectors table if it does not exist.
     add(documents: List[Document], vectors: np.ndarray) -> None : Add documents and vectors to the table.
-    search(query_vector: np.ndarray, k: int) -> List[Document] : Search for k most similar documents.
+    search(query_vector: np.ndarray, k: int, filter_provider: Optional[str]) -> List[Document] : Search for k most similar documents.
 """
 
 import json
-from typing import List
+from typing import List, Optional
 import numpy as np
 import psycopg2
 from psycopg2.extras import execute_values
@@ -98,17 +98,26 @@ class PgvectorStore(BaseVectorStore):
         self.connection.commit()
         print(f"{len(rows)} rows inserted into '{self.collection_name}'")
 
-    def search(self, query_vector: np.ndarray, k: int = 5) -> List[Document]:
+    def search(self, query_vector: np.ndarray, k: int = 5, filter_provider: Optional[str] = None) -> List[Document]:
         """
         Search for the k most similar documents using cosine similarity.
 
         Args:
             query_vector (np.ndarray): Query vector of shape (embedding_dim,).
             k (int): Number of results to return. Defaults to 5.
+            filter_provider (Optional[str]): Accepted for interface consistency with
+                BaseVectorStore. Not implemented for Pgvector (not used in production) —
+                must be None.
 
         Returns:
             List[Document]: List of k most similar documents with similarity score in metadata.
+
+        Raises:
+            NotImplementedError: If filter_provider is set.
         """
+        if filter_provider is not None:
+            raise NotImplementedError("Provider filtering is not implemented for PgvectorStore.")
+
         query_list = query_vector.tolist()
 
         with self.connection.cursor() as cursor:

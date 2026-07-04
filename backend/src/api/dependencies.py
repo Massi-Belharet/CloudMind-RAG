@@ -26,6 +26,7 @@ from src.rag.retriever import Retriever
 from src.rag.hybrid_retriever import HybridRetriever
 from src.rag.multi_query_retriever import MultiQueryRetriever
 from src.rag.reranker import Reranker
+from src.rag.semantic_router import SemanticRouter
 from src.rag.pipeline import Pipeline
 from src.llm.generator import Generator
 from src.utils.config import config
@@ -60,6 +61,9 @@ def get_pipeline() -> Pipeline:
     retriever = Retriever(embedder=embedder, vectorstore=store)
     hybrid = HybridRetriever(retriever=retriever, documents=chunks)
 
+    # Reuse the same bge-m3 embedder instance — avoids loading a second model into VRAM
+    router = SemanticRouter(embedder=embedder, threshold=config.router.threshold)
+
     ollama_base_url = f"http://{settings.ollama_host}:{settings.ollama_port}"
     llm_multi_query = ChatOllama(model=config.llm.multi_query_model, base_url=ollama_base_url)
     multi_query = MultiQueryRetriever(llm=llm_multi_query, retriever=hybrid)
@@ -79,4 +83,5 @@ def get_pipeline() -> Pipeline:
         generator=generator,
         reranker=reranker,
         relevance_threshold=config.rag.relevance_threshold,
+        router=router,
     )
