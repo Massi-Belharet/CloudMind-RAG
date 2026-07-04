@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:8000'
+// Baked in at build time (Vite env vars are compile-time). Falls back to the
+// same URL used in native local dev when not overridden.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
 export async function askQuestion(query, k = 5) {
   const response = await fetch(`${API_BASE_URL}/ask`, {

@@ -1,0 +1,25 @@
+# Keep the Docker build context lean — dev artifacts and large caches that
+# the backend/frontend images don't need at build or runtime.
+
+.git
+.gitignore
+.venv
+.pytest_cache
+.env
+.env.example
+
+# Backend dev-only artifacts (not needed at runtime — Qdrant is the
+# production vector store, not FAISS; results/notebooks are dev-only)
+backend/data/processed
+backend/results
+backend/notebooks
+backend/tests
+**/__pycache__
+**/*.pyc
+
+# Frontend
+frontend/node_modules
+frontend/dist
+
+docs
+deployments/docker/Dockerfile.gpu-test
