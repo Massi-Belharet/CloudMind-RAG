@@ -155,6 +155,19 @@ npm run dev
 | [002 — Advanced RAG Architecture](docs/adr/002-advanced-rag-architecture.md) | Hybrid Search (BM25 + dense + RRF), cross-encoder reranking, Multi-Query RAG-Fusion, embedding-based Semantic Router, CRAG relevance gating, and LangSmith observability. |
 | [003 — Embedding Model Choice](docs/adr/003-embedding-model-choice.md) | `BAAI/bge-m3` selected as the production embedding model over `nomic-embed-text-v1.5` and `Qwen3-Embedding-0.6B`, based on retrieval quality (Recall@5, MRR, NDCG@5) and a RAGAS-based end-to-end evaluation. |
 
+> **Note on the RAGAS evaluation**: the saved results in
+> `backend/results/benchmarks/ragas_evaluation_results.json` were generated
+> using `qwen3.5:9b` as the generation LLM, not the current production
+> `llama3.1:8b` (`config.llm.model` was switched afterwards for latency and
+> reliability reasons). To reproduce that evaluation, or run it against a
+> different model, set `llm.model` in `backend/config/config.yaml` accordingly:
+> ```yaml
+> llm:
+>   model: "qwen3.5:9b"   # or any other Ollama model you want to evaluate
+> ```
+> then re-run `backend/scripts/generate_rag_responses.py` followed by
+> `backend/scripts/ragas_evaluation.py`.
+
 ## Tests
 
 ```bash
@@ -164,3 +177,7 @@ uv run pytest backend/tests/unit
 # Integration tests (require Qdrant, Pgvector and Ollama running)
 uv run pytest backend/tests/integration -m integration
 ```
+
+## License
+
+This repository is licensed under the MIT License — see [LICENSE](LICENSE) for details.

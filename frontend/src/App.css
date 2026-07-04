@@ -202,7 +202,7 @@
   color: var(--color-text-muted);
 }
 
-/* Message rows (ChatGPT-style alternating full-width bands) */
+
 .message-row {
   border-bottom: 1px solid var(--color-border);
 }
