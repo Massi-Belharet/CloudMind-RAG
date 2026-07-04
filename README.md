@@ -1,4 +1,6 @@
-<img src="frontend/src/assets/logo.png" alt="CloudMind logo" width="120" />
+<p align="center">
+  <img src="frontend/src/assets/logo.png" alt="CloudMind logo" width="120" />
+</p>
 
 # CloudMind RAG
 
