@@ -9,6 +9,8 @@ import pytest
 import numpy as np
 from unittest.mock import MagicMock, patch
 
+from qdrant_client.models import Filter, FieldCondition, MatchValue
+
 from src.loaders.base_loader import Document
 from src.vectorstores.qdrant_store import QdrantStore
 
@@ -170,7 +172,21 @@ class TestSearch:
         mock_client.query_points.assert_called_once_with(
             collection_name="test_collection",
             query=query_vector.tolist(),
-            limit=3
+            limit=3,
+            query_filter=None
         )
+
+    def test_search_without_filter_provider_passes_no_query_filter(self, store, mock_client, query_vector):
+        mock_client.query_points.return_value.points = []
+        store.search(query_vector, k=3)
+        call_kwargs = mock_client.query_points.call_args.kwargs
+        assert call_kwargs["query_filter"] is None
+
+    def test_search_with_filter_provider_builds_qdrant_filter(self, store, mock_client, query_vector):
+        mock_client.query_points.return_value.points = []
+        store.search(query_vector, k=3, filter_provider="aws")
+        call_kwargs = mock_client.query_points.call_args.kwargs
+        expected_filter = Filter(must=[FieldCondition(key="provider", match=MatchValue(value="aws"))])
+        assert call_kwargs["query_filter"] == expected_filter
 
 

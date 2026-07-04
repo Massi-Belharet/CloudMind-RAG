@@ -1,5 +1,5 @@
 """
-Multi-Query Retriever module 
+Multi-Query Retriever module
 
 Implements RAG-Fusion: generates multiple semantically distinct reformulations
 of the user's query using an LLM, retrieves documents for the original query
@@ -7,10 +7,10 @@ and each reformulation via HybridRetriever, and fuses all result lists using
 Reciprocal Rank Fusion.
 
 Functions:
-    retrieve(query: str, k: int) -> List[Document] : Retrieve top-k documents using multi-query RAG-Fusion.
+    retrieve(query: str, k: int, filter_provider: Optional[str]) -> List[Document] : Retrieve top-k documents using multi-query RAG-Fusion, optionally restricted to one provider.
 """
 
-from typing import List
+from typing import List, Optional
 
 from langchain_core.language_models import BaseChatModel
 
@@ -63,7 +63,7 @@ class MultiQueryRetriever:
         reformulations = [line.strip() for line in lines if line.strip()]
         return reformulations[:self.n_queries]
 
-    def retrieve(self, query: str, k: int = 5) -> List[Document]:
+    def retrieve(self, query: str, k: int = 5, filter_provider: Optional[str] = None) -> List[Document]:
         """
         Retrieve top-k documents using RAG-Fusion.
 
@@ -73,6 +73,11 @@ class MultiQueryRetriever:
         Args:
             query (str): User question to search for.
             k (int): Number of documents to retrieve. Defaults to 5.
+            filter_provider (Optional[str]): If set, restrict results to this provider.
+                Applied identically to the original query and every reformulation
+                (the provider should be detected once, upstream, on the original
+                query only — not re-detected per reformulation). Defaults to None,
+                which searches across all providers (unchanged behavior).
 
         Returns:
             List[Document]: Top-k most relevant documents after RRF fusion across all query variants.
@@ -80,6 +85,8 @@ class MultiQueryRetriever:
         reformulations = self._generate_queries(query)
         all_queries = [query] + reformulations
 
-        ranked_lists = [self.retriever.retrieve(q, k=k * 2) for q in all_queries]
+        ranked_lists = [
+            self.retriever.retrieve(q, k=k * 2, filter_provider=filter_provider) for q in all_queries
+        ]
 
         return rrf_fusion(ranked_lists=ranked_lists, k=k, rrf_k=self.rrf_k)

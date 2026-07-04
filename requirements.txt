@@ -19,3 +19,6 @@ rank-bm25
 langsmith
 python-dotenv
 ragas
+fastapi
+uvicorn
+httpx

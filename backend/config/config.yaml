@@ -10,17 +10,20 @@ rag:
   chunk_overlap: 50
   csv_chunk_size: 100
   top_k: 5
-  relevance_threshold: 0.0
+  relevance_threshold: 0.0129
 
 reranker:
   model: "BAAI/bge-reranker-v2-m3"
   top_k: 5
 
+router:
+  threshold: 0.5987
+
 multi_query:
   n_queries: 3
 
 llm:
-  model: "qwen3.5:9b"
+  model: "llama3.1:8b"
   multi_query_model: "llama3.2:1b"
   ragas_judge_model: "llama3.1:8b"
 
@@ -56,3 +59,6 @@ paths:
   data_raw: "backend/data/raw"
   results: "backend/results"
   storage: "backend/data/processed"
+
+api:
+  collection_name: "cloudmind_prod"

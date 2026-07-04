@@ -23,6 +23,60 @@ services:
       - pgvector_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  backend:
+    build:
+      context: .
+      dockerfile: deployments/docker/Dockerfile.backend
+    container_name: cloudmind-backend
+    depends_on:
+      - qdrant
+      - pgvector
+    environment:
+      # Container-to-container: use the Docker service name, not localhost.
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      POSTGRES_HOST: pgvector
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # Ollama runs NATIVELY on the host machine (not containerized).
+      # host.docker.internal resolves to the host's IP from inside a
+      # container. Works out of the box on Docker Desktop (Windows/macOS).
+      # On native Linux Docker Engine it does NOT resolve by default — the
+      # extra_hosts entry below (host-gateway) is what makes it work there
+      # too, on all three platforms consistently.
+      OLLAMA_HOST: host.docker.internal
+      OLLAMA_PORT: 11434
+      LANGSMITH_TRACING: ${LANGSMITH_TRACING}
+      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY}
+      LANGSMITH_PROJECT: ${LANGSMITH_PROJECT}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: deployments/docker/Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+    container_name: cloudmind-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+
 volumes:
   qdrant_data:
   pgvector_data:

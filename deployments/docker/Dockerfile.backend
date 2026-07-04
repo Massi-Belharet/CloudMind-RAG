@@ -1,0 +1,40 @@
+# CloudMind RAG API — backend image
+#
+# Reproduces the same install used locally (uv sync against the root
+# pyproject.toml/uv.lock) — NOT requirements.txt, which lacks the pinned CUDA
+# index for torch (see pyproject.toml [tool.uv.sources] / [[tool.uv.index]]).
+#
+# Requires GPU passthrough at runtime (--gpus all, or docker-compose's
+# deploy.resources.reservations.devices) since bge-m3 and bge-reranker-v2-m3
+# load on CUDA with use_fp16=True — verified working via
+# deployments/docker/Dockerfile.gpu-test before this image was built.
+#
+# Build context must be the repository root (not backend/), since this image
+# needs both the root pyproject.toml/uv.lock and the backend/ source tree.
+
+FROM python:3.13-slim
+
+# Python fully buffers stdout when it isn't a TTY (always the case in a
+# container) — without this, print() output (including "Pipeline ready" and
+# the model-loading progress bars) can sit unflushed for a long time, making
+# the container look stuck even when startup is progressing normally.
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir uv
+
+# Dependency manifests first for better layer caching
+COPY pyproject.toml uv.lock ./
+COPY backend/ backend/
+
+RUN uv sync --frozen
+
+EXPOSE 8000
+
+# Same launch command as local dev (uv run uvicorn ... --app-dir backend),
+# run from /app (the repo-root equivalent) so paths in config.yaml
+# ("backend/config/config.yaml", "backend/data/raw", ...) resolve correctly.
+# --host 0.0.0.0 is required for the API to be reachable from outside the
+# container (binding to 127.0.0.1 would make it unreachable).
+CMD ["uv", "run", "python", "-m", "uvicorn", "src.api.main:app", "--app-dir", "backend", "--host", "0.0.0.0", "--port", "8000"]

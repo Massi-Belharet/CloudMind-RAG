@@ -4,7 +4,7 @@
 Accepted
 
 ## Date
-2026-06-28
+2026-07-03
 
 ## Context
 
@@ -86,19 +86,34 @@ prefix. Not retained.
 - Qdrant collections must be rebuilt with 1024-dim vectors instead of 768-dim
 - `use_fp16` must stay enabled for bge-m3 on 8GB VRAM (RTX 4060) to avoid CUDA OOM,
   as established during Part A/B debugging
-- SemanticRouter's threshold (currently 0.6, tuned against nomic-v1.5's similarity
-  distribution) will need re-validation against bge-m3's distribution before Sprint 5
+- SemanticRouter's threshold needed re-validation against bge-m3's similarity
+  distribution before Sprint 5 — done, see "Sprint 5 — Router Recalibration and
+  CRAG Threshold Calibration" below
 - All Advanced RAG components (HybridRetriever, MultiQueryRetriever, Reranker) remain
   embedding-model agnostic by design (ADR 002) — no code changes required beyond config
 
-## Part C — RAG Pipeline Evaluation (Completed)
+## Part C — RAG Pipeline Evaluation
 
 The complete Advanced RAG pipeline (BAAI/bge-m3 embeddings, Hybrid Search,
 Multi-Query RAG-Fusion, Cross-Encoder Reranker, qwen3.5:9b generation) was
 evaluated with RAGAS using the `reference_answer` field from `ground_truth.json`.
 
+**Production generation model deviation from this evaluation** : the Part C results
+below were measured with `qwen3.5:9b` as the generator, per the pipeline described
+above. In production (Sprint 5), the generator was switched to `llama3.1:8b` for
+latency reasons, `qwen3.5:9b` takes ~60-94s per response due to its always-on
+thinking overhead (confirmed with `think=False` still yielding ~86s, see verification
+below), against ~25s for `llama3.1:8b` on the same query, measured via LangSmith
+traces. This is the same thinking-mode limitation already identified for the
+Multi-Query and RAGAS-judge roles above, now confirmed on free-form generation too.
+The Faithfulness/Answer Relevancy/Context Precision/Context Recall scores below
+therefore describe the pipeline as evaluated with `qwen3.5:9b`, not the exact model
+currently serving production traffic, re-running this evaluation with `llama3.1:8b`
+was not done due to time constraints. This is a known, accepted gap between what was
+measured and what is deployed.
+
 **Judge model deviation from initial plan** : `qwen3.5:9b` was initially planned
-as the LLM judge but could not be used — it burns unbounded hidden reasoning
+as the LLM judge but could not be used, it burns unbounded hidden reasoning
 tokens even with `think=False`, so its structured-output calls to RAGAS's
 prompts return empty regardless of `max_tokens`. This mirrors the same
 thinking-mode issue documented in ADR 002 for Multi-Query reformulation.
@@ -139,3 +154,54 @@ for future work if time permits before the project deadline.
   and the LLM correctly declined to answer rather than hallucinate,
   which validates CRAG's fallback behavior (ADR 002) is working as intended
   even outside the explicit fallback threshold path.
+
+## Sprint 5 — Router Recalibration and CRAG Threshold Calibration
+
+Two components inherited stale, uncalibrated defaults from earlier sprints. Both were
+fixed empirically rather than by adjusting a single failing example.
+
+### SemanticRouter threshold
+
+The 0.6 threshold (ADR 002) was tuned against `nomic-embed-text-v1.5`'s similarity
+distribution. After switching to `bge-m3` (this ADR), the router was found to be
+disconnected from production entirely (see ADR 002 §4 update) — and once wired in,
+0.6 no longer separated mono-provider from multi-provider queries correctly under
+`bge-m3` (a clear AWS-specific query scored 0.588, just under threshold).
+
+Root cause was not the threshold alone: `ROUTE_DESCRIPTIONS` (keyword-style, e.g.
+`"aws ec2 s3"`) embedded poorly under `bge-m3` compared to natural-language phrasing.
+Fix: rewrote `ROUTE_DESCRIPTIONS` as natural-language sentences (no change to
+`route()`/`_cosine_similarity()`), then recalibrated on 22 queries (16 mono-provider,
+6 explicitly multi-provider) via `backend/scripts/calibrate_router_threshold.py`.
+New threshold: **0.5987** — zero dangerous false positives (no multi-provider query
+was ever incorrectly filtered) across the test set. Configured via
+`config.router.threshold`.
+
+### CRAG relevance_threshold
+
+`config.rag.relevance_threshold` was `0.0` — an untuned placeholder from Sprint 3,
+functionally permissive since `bge-reranker-v2-m3` produces unbounded logits, not
+0-1 probabilities. This let off-topic queries with superficial lexical overlap slip
+past CRAG (e.g. "What is Python?" was answered from the LLM's general knowledge
+instead of triggering the fallback, because "Python" appears in AWS/GCP SDK
+documentation despite the question being unrelated to cloud/FinOps).
+
+Calibrated via `backend/scripts/calibrate_crag_threshold.py` on 10 positive examples
+(the ground truth queries) vs 10 negative examples (clearly out-of-scope, including
+the "What is Python?" trap case). Score distributions: positives `[0.0145, 0.9899]`,
+negatives `[0.0000, 0.0113]` — a clean separation. New threshold: **0.0129**. Results
+saved to `backend/results/benchmarks/crag_threshold_calibration.json`.
+
+### Verification
+
+Both fixes were validated end-to-end post-recalibration:
+- `"What is Python?"` → CRAG fallback triggered correctly (previously answered from
+  general knowledge)
+- `"What are the AWS Well-Architected Framework cost optimization pillars?"` (k=10)
+  → AWS-only sources, no GCP contamination (previously mixed providers)
+- `"How to optimize Kubernetes workloads for cost efficiency in a multi-cloud setup?"`
+  → still correctly retrieves AWS + Azure + GCP sources (provider filter does not
+  fire on genuinely multi-provider queries)
+
+Full unit test suite (184/184) passes after both changes, including updated coverage
+in `test_qdrant_store.py`, `test_pipeline.py`, and new tests for `SemanticRouter`.

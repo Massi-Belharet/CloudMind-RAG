@@ -100,27 +100,17 @@ class TestBuildContext:
         context = generator._build_context(sample_documents)
         assert isinstance(context, str)
 
-    def test_build_context_includes_provider(self, generator, sample_documents):
+    def test_build_context_excludes_provider_and_source(self, generator, sample_documents):
+        # No source labeling — the LLM was imitating it as broken citations/links.
         context = generator._build_context(sample_documents)
-        assert "AWS" in context
-        assert "AZURE" in context
-        assert "COMPLIANCE" in context
-
-    def test_build_context_includes_source(self, generator, sample_documents):
-        context = generator._build_context(sample_documents)
-        assert "aws-overview.pdf" in context
-        assert "cost_model.pdf" in context
+        assert "aws-overview.pdf" not in context
+        assert "cost_model.pdf" not in context
+        assert "[1]" not in context
 
     def test_build_context_includes_content(self, generator, sample_documents):
         context = generator._build_context(sample_documents)
         assert "AWS recommends using multiple availability zones." in context
         assert "Cost optimization is a key pillar" in context
-
-    def test_build_context_numbered_sources(self, generator, sample_documents):
-        context = generator._build_context(sample_documents)
-        assert "[1]" in context
-        assert "[2]" in context
-        assert "[3]" in context
 
     def test_build_context_empty_documents(self, generator):
         context = generator._build_context([])

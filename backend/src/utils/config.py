@@ -35,6 +35,9 @@ class RerankerConfig(BaseModel):
     model: str
     top_k: int
 
+class RouterConfig(BaseModel):
+    threshold: float
+
 
 class LLMConfig(BaseModel):
     model: str
@@ -67,6 +70,9 @@ class PathsConfig(BaseModel):
     results: str
     storage: str
 
+class ApiConfig(BaseModel):
+    collection_name: str
+
 
 class AppConfig(BaseModel):
     embedding: EmbeddingConfig
@@ -76,6 +82,8 @@ class AppConfig(BaseModel):
     paths: PathsConfig
     reranker: RerankerConfig
     multi_query: MultiQueryConfig
+    api: ApiConfig
+    router: RouterConfig
 
 
 # Loader 
