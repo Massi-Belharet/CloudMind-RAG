@@ -60,21 +60,17 @@ class Generator(BaseLLM):
 
     def _build_context(self, documents: List[Document]) -> str:
         """
-        Build a structured context string from retrieved documents.
+        Build a context string from retrieved documents.
 
         Args:
             documents (List[Document]): List of retrieved documents.
 
         Returns:
-            str: Formatted context string with provider and content.
+            str: Concatenated document contents, with no source labels or
+            numbering. Earlier versions prefixed each chunk with "[i] Source:
+            PROVIDER — file_name", which the LLM would imitate in its answers
+            — sometimes as bracketed reference numbers, sometimes as markdown
+            links to the file name, which is never a real URL and renders as
+            a broken/dead link in the UI.
         """
-        context_parts = []
-
-        for i, doc in enumerate(documents, start=1):
-            provider = doc.metadata.get("provider", "unknown").upper()
-            source = doc.metadata.get("file_name", "unknown")
-            context_parts.append(
-                f"[{i}] Source: {provider} — {source}\n{doc.content}"
-            )
-
-        return "\n\n".join(context_parts)
+        return "\n\n".join(doc.content for doc in documents)
