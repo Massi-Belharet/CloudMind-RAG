@@ -14,9 +14,6 @@ practices, and FinOps data from AWS, Azure, GCP, and compliance sources.
 
 ![Architecture](docs/diagrams/pipeline_architecture.png)
 
-*(Diagram details the full request flow: semantic provider routing, hybrid
-search — BM25 + dense + RRF, multi-query RAG-Fusion, cross-encoder reranking,
-CRAG relevance gating, and streamed generation.)*
 
 ## Tech Stack
 
