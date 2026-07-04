@@ -4,7 +4,7 @@
 Accepted
 
 ## Date
-2026-06-28
+2026-07-03
 
 ## Context
 
@@ -92,14 +92,28 @@ prefix. Not retained.
 - All Advanced RAG components (HybridRetriever, MultiQueryRetriever, Reranker) remain
   embedding-model agnostic by design (ADR 002) — no code changes required beyond config
 
-## Part C — RAG Pipeline Evaluation (Completed)
+## Part C — RAG Pipeline Evaluation
 
 The complete Advanced RAG pipeline (BAAI/bge-m3 embeddings, Hybrid Search,
 Multi-Query RAG-Fusion, Cross-Encoder Reranker, qwen3.5:9b generation) was
 evaluated with RAGAS using the `reference_answer` field from `ground_truth.json`.
 
+**Production generation model deviation from this evaluation** : the Part C results
+below were measured with `qwen3.5:9b` as the generator, per the pipeline described
+above. In production (Sprint 5), the generator was switched to `llama3.1:8b` for
+latency reasons, `qwen3.5:9b` takes ~60-94s per response due to its always-on
+thinking overhead (confirmed with `think=False` still yielding ~86s, see verification
+below), against ~25s for `llama3.1:8b` on the same query, measured via LangSmith
+traces. This is the same thinking-mode limitation already identified for the
+Multi-Query and RAGAS-judge roles above, now confirmed on free-form generation too.
+The Faithfulness/Answer Relevancy/Context Precision/Context Recall scores below
+therefore describe the pipeline as evaluated with `qwen3.5:9b`, not the exact model
+currently serving production traffic, re-running this evaluation with `llama3.1:8b`
+was not done due to time constraints. This is a known, accepted gap between what was
+measured and what is deployed.
+
 **Judge model deviation from initial plan** : `qwen3.5:9b` was initially planned
-as the LLM judge but could not be used — it burns unbounded hidden reasoning
+as the LLM judge but could not be used, it burns unbounded hidden reasoning
 tokens even with `think=False`, so its structured-output calls to RAGAS's
 prompts return empty regardless of `max_tokens`. This mirrors the same
 thinking-mode issue documented in ADR 002 for Multi-Query reformulation.
