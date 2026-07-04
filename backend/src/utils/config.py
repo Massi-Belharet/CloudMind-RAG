@@ -35,6 +35,9 @@ class RerankerConfig(BaseModel):
     model: str
     top_k: int
 
+class RouterConfig(BaseModel):
+    threshold: float
+
 
 class LLMConfig(BaseModel):
     model: str
@@ -80,6 +83,7 @@ class AppConfig(BaseModel):
     reranker: RerankerConfig
     multi_query: MultiQueryConfig
     api: ApiConfig
+    router: RouterConfig
 
 
 # Loader 

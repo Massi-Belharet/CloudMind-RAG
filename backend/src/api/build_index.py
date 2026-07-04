@@ -1,5 +1,5 @@
 """
-One-time index build script for CloudMind RAG API (Sprint 5).
+One-time index build script
 
 Loads all cloud documents (PDF, Markdown, CSV), embeds them with the production
 embedding model (BAAI/bge-m3, per ADR 003) at the production chunk size, and

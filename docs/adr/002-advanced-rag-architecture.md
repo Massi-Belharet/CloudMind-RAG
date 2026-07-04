@@ -59,6 +59,16 @@ and had no mechanism to detect irrelevant or out-of-scope queries.
 - Threshold of 0.6 with `nomic-embed-text-v1.5` correctly routes AWS, Azure, GCP, compliance queries
 - Returns `None` for general queries → no filter applied → searches all providers
 
+**Update (Sprint 5)** : The router was built and tested in Sprint 3 but never wired into
+`dependencies.py` — it existed in the codebase without being called in production. This
+allowed cross-provider contamination in retrieval (e.g. GCP-sourced chunks appearing in
+an AWS-specific answer). It is now wired end-to-end: `Pipeline.ask()`/`ask_stream()` call
+`router.route(query)` once on the original query (not on Multi-Query reformulations), and
+the resulting provider (or `None`) is threaded through `Retriever` → `HybridRetriever` →
+`QdrantStore.search(filter_provider=...)`. BM25 results are filtered post-hoc by metadata
+since the BM25 index isn't partitioned by provider. See ADR 003's Consequences section
+for the threshold recalibration this required after the switch to bge-m3.
+
 ### 5. CRAG — Corrective RAG
 
 **Decision** : Evaluate retrieval relevance before generation using reranker scores.
@@ -82,7 +92,7 @@ and had no mechanism to detect irrelevant or out-of-scope queries.
 
 - All Advanced RAG components are optional and injectable → Pipeline stays flexible
 - Sprint 4 will benchmark embedding models (nomic-v1.5 vs bge-m3) using this fixed pipeline
-- RAGAS evaluation (Recall@K, Faithfulness, Answer Relevancy) deferred to Sprint 4
+- RAGAS evaluation (Recall@K, Faithfulness, Answer Relevancy) deferred to Sprint 4 completed, see ADR 003 Part B and Part C
 - LangSmith traces available at https://smith.langchain.com → project CloudMind-RAG
 
 ## Observed Latency (Integration Tests)
