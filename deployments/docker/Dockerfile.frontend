@@ -1,0 +1,32 @@
+# CloudMind frontend — multi-stage build
+#
+# Stage 1 builds the static Vite/React bundle. Stage 2 serves it with nginx —
+# no Node runtime needed at serve time, small final image.
+#
+# Build context must be the repository root (see docker-compose.yml), so
+# paths below are prefixed with frontend/.
+
+# --- Build stage ---
+FROM node:22-alpine AS build
+
+WORKDIR /app
+
+# VITE_API_BASE_URL is baked into the static bundle at build time (Vite env
+# vars are compile-time, not runtime). Defaults to the same URL used in local
+# dev — override via docker-compose build.args if the API is reachable at a
+# different host/port.
+ARG VITE_API_BASE_URL=http://localhost:8000
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm install
+
+COPY frontend/ ./
+RUN npm run build
+
+# --- Serve stage ---
+FROM nginx:alpine
+
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80

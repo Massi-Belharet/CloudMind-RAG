@@ -4,6 +4,7 @@ import ChatInput from './components/ChatInput'
 import Sidebar from './components/Sidebar'
 import { askQuestionStream } from './api'
 import { loadConversations, saveConversations } from './storage'
+import logo from './assets/logo.png'
 import './App.css'
 
 const RESULTS_K = 5
@@ -148,7 +149,7 @@ function App() {
       <div className="chat-app">
         <header className="chat-header">
           <div className="chat-header-inner">
-            <span className="chat-logo" aria-hidden="true">☁</span>
+            <img src={logo} alt="CloudMind logo" className="chat-logo" />
             <div className="chat-header-text">
               <span className="chat-title">CloudMind</span>
               <span className="chat-subtitle">FinOps &amp; Cloud Assistant</span>
