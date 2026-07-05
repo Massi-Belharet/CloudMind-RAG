@@ -10,7 +10,7 @@ Functions:
 
 from pathlib import Path
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 import yaml
 
 
@@ -30,6 +30,7 @@ class RAGConfig(BaseModel):
     csv_chunk_size: int
     top_k: int
     relevance_threshold: float
+    min_chunk_score: Optional[float] = None
 
 class RerankerConfig(BaseModel):
     model: str

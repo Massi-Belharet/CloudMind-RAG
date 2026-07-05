@@ -28,7 +28,7 @@ from langsmith import traceable
 
 class Pipeline:
 
-    def __init__(self, loaders: List[BaseLoader], cleaner: TextCleaner, splitter: TextSplitter, embedder: BaseEmbedder, vectorstore: BaseVectorStore, retriever: Retriever, generator: BaseLLM, reranker: Optional[Reranker] = None, relevance_threshold: Optional[float] = None, router: Optional[SemanticRouter] = None, storage_path: str = "backend/data/processed/faiss"):
+    def __init__(self, loaders: List[BaseLoader], cleaner: TextCleaner, splitter: TextSplitter, embedder: BaseEmbedder, vectorstore: BaseVectorStore, retriever: Retriever, generator: BaseLLM, reranker: Optional[Reranker] = None, relevance_threshold: Optional[float] = None, router: Optional[SemanticRouter] = None, storage_path: str = "backend/data/processed/faiss", min_chunk_score: Optional[float] = None):
         """
         Initialize the RAG pipeline with all required components.
 
@@ -46,6 +46,11 @@ class Pipeline:
                 original query to a provider once per call and restricts retrieval to it.
                 Defaults to None, which searches across all providers (unchanged behavior).
             storage_path (str): Path to persist the vector store. Defaults to backend/data/processed/faiss.
+            min_chunk_score (Optional[float]): Minimum individual rerank score a chunk must
+                meet to be kept. Unlike relevance_threshold (which gates on the mean score
+                across the whole retrieved set), this drops individually weak chunks even
+                when the query as a whole passes CRAG. Defaults to None, which keeps all
+                reranked chunks (unchanged behavior).
         """
         self.loaders = loaders
         self.cleaner = cleaner
@@ -58,6 +63,7 @@ class Pipeline:
         self.relevance_threshold = relevance_threshold
         self.router = router
         self.storage_path = storage_path
+        self.min_chunk_score = min_chunk_score
 
     def build(self) -> None:
         """
@@ -109,6 +115,24 @@ class Pipeline:
         scores = [doc.metadata.get("rerank_score", 0.0) for doc in scored]
         return float(np.mean(scores)) >= self.relevance_threshold
 
+    def _filter_by_min_chunk_score(self, documents: List[Document]) -> List[Document]:
+        """
+        Drop individually weak chunks whose rerank_score falls below min_chunk_score.
+
+        Complements CRAG's mean-based gate: a query can pass CRAG on average while
+        still carrying a low-signal chunk (e.g. a "related links" boilerplate chunk)
+        in its top-k. This removes those chunks before CRAG and generation see them.
+
+        Args:
+            documents (List[Document]): Reranked documents to filter.
+
+        Returns:
+            List[Document]: Documents whose rerank_score meets min_chunk_score.
+        """
+        return [
+            doc for doc in documents
+            if doc.metadata.get("rerank_score", 0.0) >= self.min_chunk_score
+        ]
 
     @traceable(name="CloudMind-RAG-Pipeline")
     def ask(self, query: str, k: int = 5) -> str:
@@ -138,6 +162,13 @@ class Pipeline:
         if self.reranker:
             documents = self.reranker.rerank(query, documents, top_k=k)
             print(f"Reranked to {len(documents)} chunks")
+
+        # Drop individually weak chunks before CRAG and generation see them
+        if self.reranker and self.min_chunk_score is not None:
+            documents = self._filter_by_min_chunk_score(documents)
+            print(f"Filtered to {len(documents)} chunks above min_chunk_score")
+            if not documents:
+                return "I don't have enough information in my knowledge base to answer this question."
 
         # CRAG to evaluate relevance if threshold is set
         if self.reranker and self.relevance_threshold is not None:
@@ -178,6 +209,14 @@ class Pipeline:
         if self.reranker:
             documents = self.reranker.rerank(query, documents, top_k=k)
             print(f"Reranked to {len(documents)} chunks")
+
+        # Drop individually weak chunks before CRAG and generation see them
+        if self.reranker and self.min_chunk_score is not None:
+            documents = self._filter_by_min_chunk_score(documents)
+            print(f"Filtered to {len(documents)} chunks above min_chunk_score")
+            if not documents:
+                yield "I don't have enough information in my knowledge base to answer this question."
+                return
 
         # CRAG to evaluate relevance if threshold is set — same protective
         # short-circuit as ask(), yielded as a single-item stream instead of

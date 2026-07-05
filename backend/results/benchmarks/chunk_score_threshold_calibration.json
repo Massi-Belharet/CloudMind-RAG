@@ -1,0 +1,250 @@
+{
+  "top_k": 5,
+  "noise_scores": [],
+  "content_scores": [
+    0.775390625,
+    0.513671875,
+    0.45068359375,
+    0.4130859375,
+    0.397216796875,
+    0.9990234375,
+    0.99658203125,
+    0.990234375,
+    0.986328125,
+    0.97802734375,
+    0.258056640625,
+    0.249755859375,
+    0.2406005859375,
+    0.03448486328125,
+    0.0179901123046875,
+    0.99560546875,
+    0.95458984375,
+    0.8427734375,
+    0.75146484375,
+    0.6708984375,
+    0.08209228515625,
+    0.03155517578125,
+    0.02801513671875,
+    0.011688232421875,
+    0.0021076202392578125,
+    0.9619140625,
+    0.8154296875,
+    0.312255859375,
+    0.0489501953125,
+    0.004085540771484375
+  ],
+  "recommended_threshold": 0.0,
+  "rationale": "No noise-flagged chunks appeared in the top-k for these test queries (the corpus may already be clean, or the trigger query no longer surfaces the boilerplate chunk). Defaulting to 0.0 (no-op filter) \u2014 re-run calibration against a corpus/query combo that still reproduces the issue before raising this threshold.",
+  "results": [
+    {
+      "query": "What are Azure cost optimization best practices?",
+      "chunks": [
+        {
+          "score": 0.775390625,
+          "source": "Architecture strategies for optimizing scaling costs - Microsoft Azure Well-Architected Framework _ Microsoft Learn.pdf",
+          "preview": "Architecture strategies for optimizing scaling costs Applies to this Azure Well-Architected Framework Cost Optimization checklist recommendation: CO:1",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.513671875,
+          "source": "cloud_budget_2023.csv",
+          "preview": "date: 2023-04-02, account_id: acct-002, cloud_provider: Azure, environment: dev, total_list_cost: 2.6993, total_net_cost: 2.3798, total_on_demand_cost",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.45068359375,
+          "source": "cloud_budget_2023.csv",
+          "preview": "date: 2023-09-26, account_id: acct-008, cloud_provider: Azure, environment: dev, total_list_cost: 4.7482, total_net_cost: 4.4189, total_on_demand_cost",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.4130859375,
+          "source": "Architecture strategies for optimizing scaling costs - Microsoft Azure Well-Architected Framework _ Microsoft Learn.pdf",
+          "preview": "actions. By using autoscaling, you can optimize resource allocation and cost efficiency by dynamically scaling resources based on actual demand. Azure",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.397216796875,
+          "source": "cloud_budget_2023.csv",
+          "preview": "date: 2023-01-02, account_id: acct-005, cloud_provider: Azure, environment: dev, total_list_cost: 1.5059, total_net_cost: 1.405, total_on_demand_cost:",
+          "looks_like_noise": false
+        }
+      ]
+    },
+    {
+      "query": "What are the AWS Well-Architected Framework cost optimization pillars?",
+      "chunks": [
+        {
+          "score": 0.9990234375,
+          "source": "wellarchitected-financial-services-industry-lens.pdf",
+          "preview": "Financial Services Industry Lens AWS Well-Architected Framework Cost optimization The cost optimization pillar provides guidance to help customers app",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.99658203125,
+          "source": "hybrid-networking-lens.pdf",
+          "preview": "Hybrid Networking Lens - AWS Well-Architected Framework AWS Whitepaper Cost optimization The cost optimization pillar includes the continual process o",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.990234375,
+          "source": "aws-overview.pdf",
+          "preview": "Are you Well-Architected? Explore the AWS Well-Architected Framework, which helps you understand the pros and cons  of the decisions you make when bui",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.986328125,
+          "source": "wellarchitected-financial-services-industry-lens.pdf",
+          "preview": "Financial Services Industry Lens AWS Well-Architected Framework \u2022 Reduce costs over time. Cost optimization is a continual process of re nement and im",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.97802734375,
+          "source": "Cost optimization pillar.md",
+          "preview": "The recommendations in the cost optimization pillar of the Well-Architected Framework are mapped to the following core principles:   - [**Align cloud ",
+          "looks_like_noise": false
+        }
+      ]
+    },
+    {
+      "query": "How to implement data residency compliance under RGPD for cloud workloads?",
+      "chunks": [
+        {
+          "score": 0.258056640625,
+          "source": "Security, privacy, and compliance pillar.md",
+          "preview": "- Understand your data type and its location. - Determine what risks exist for your data and which laws and regulations apply. - Control where your da",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.249755859375,
+          "source": "Security, privacy, and compliance pillar.md",
+          "preview": "This recommendation is relevant to the following [focus area](https://docs.cloud.google.com/architecture/framework/security#focus_areas_of_cloud_secur",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.2406005859375,
+          "source": "Financial services (FS) perspective.md",
+          "preview": "- When you choose [Google Cloud regions](https://docs.cloud.google.com/compute/docs/regions-zones) for your workloads and data, consider local regulat",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.03448486328125,
+          "source": "eucloudcoc.pdf",
+          "preview": "for their use case. The Code has thus been pre- pared to contribute to the proper application of the  GDPR, taking into account the specific features ",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.0179901123046875,
+          "source": "eucloudcoc.pdf",
+          "preview": "1 Introduction  Cloud computing provides significant benefits to  both public and private sector customers in terms  of cost, flexibility, efficiency,",
+          "looks_like_noise": false
+        }
+      ]
+    },
+    {
+      "query": "What is the difference between hybrid cloud and multi-cloud architecture?",
+      "chunks": [
+        {
+          "score": 0.99560546875,
+          "source": "Unified hybrid and multicloud operations - Cloud Adoption Framework _ Microsoft Learn.pdf",
+          "preview": "Unified hybrid and multicloud operations Hybrid cloud refers to a mix of on-premises/private infrastructure and public cloud services working together",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.95458984375,
+          "source": "Drivers, considerations, strategy, and approaches.md",
+          "preview": "> [!NOTE] > **Note:** Sometimes business requirements are defined to satisfy certain business strategies. A business strategy can be defined as a long",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.8427734375,
+          "source": "Drivers, considerations, strategy, and approaches.md",
+          "preview": "An organization can adopt a hybrid or multicloud architecture either as a permanent solution to meet specific business objectives, or as a temporary s",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.75146484375,
+          "source": "Drivers, considerations, strategy, and approaches.md",
+          "preview": "between your business strategy and your cloud investments.   If the objective of the hybrid or multicloud architecture is to create a temporary state,",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.6708984375,
+          "source": "Architectural approaches to adopt a hybrid or multicloud architecture.md",
+          "preview": "Each migration approach discussed here has certain strengths and weaknesses. A key advantage of following a hybrid and multicloud strategy is that it ",
+          "looks_like_noise": false
+        }
+      ]
+    },
+    {
+      "query": "How to reduce Azure cloud spending using reserved instances?",
+      "chunks": [
+        {
+          "score": 0.08209228515625,
+          "source": "wellarchitected-financial-services-industry-lens.pdf",
+          "preview": "Due to the agility of many enterprise customers' operations, investing in reserved instances (RIs)  and AWS Compute Savings Plans (SPs) and usage of s",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.03155517578125,
+          "source": "wellarchitected-financial-services-industry-lens.pdf",
+          "preview": "\u2022 Reserved Instance Reporting \u2022 AWS Customer Carbon Footprint Tool \u2022 CUDOS dashboards \u2022 Saving Plans - Compute, Amazon EC2, and Amazon SageMaker AI \u2022 ",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.02801513671875,
+          "source": "Architecture strategies for optimizing scaling costs - Microsoft Azure Well-Architected Framework _ Microsoft Learn.pdf",
+          "preview": "actions. By using autoscaling, you can optimize resource allocation and cost efficiency by dynamically scaling resources based on actual demand. Azure",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.011688232421875,
+          "source": "aws-overview.pdf",
+          "preview": "compared to On-Demand Instance pricing. You have the exibility to change families, operating  system types, and tenancies while bene ting from Reserve",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.0021076202392578125,
+          "source": "generative-ai-lens.pdf",
+          "preview": "usage pattern. Customers self-hosting models should also consider optimizing the model's hosting  infrastructure. Consider right-sizing the inference ",
+          "looks_like_noise": false
+        }
+      ]
+    },
+    {
+      "query": "What are the AWS best practices for sustainable and green cloud infrastructure?",
+      "chunks": [
+        {
+          "score": 0.9619140625,
+          "source": "wellarchitected-sustainability-pillar.pdf",
+          "preview": "Sustainability Pillar AWS Well-Architected Framework Best practices for sustainability in the cloud Optimize workload placement, and optimize your arc",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.8154296875,
+          "source": "wellarchitected-financial-services-industry-lens.pdf",
+          "preview": "while you are responsible for judiciously developing workloads that take advantage of the most  sustainable options provided by AWS. \u2022 Sustainability ",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.312255859375,
+          "source": "wellarchitected-financial-services-industry-lens.pdf",
+          "preview": "\u2022 Renewable energy projects on Amazon Around the Globe \u2022 Renewable Energy Methodology \u2022 Building Sustainable, E cient, and Cost-Optimized Applications",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.0489501953125,
+          "source": "hybrid-networking-lens.pdf",
+          "preview": "Hybrid Networking Lens - AWS Well-Architected Framework AWS Whitepaper Resources \u2022 Security best practices in IAM \u2022 AWS Direct Connect \u2022 AWS Site-to-S",
+          "looks_like_noise": false
+        },
+        {
+          "score": 0.004085540771484375,
+          "source": "hybrid-networking-lens.pdf",
+          "preview": "protects the security and integrity of the hybrid networking environment. Proper access control is  crucial to avoid unauthorized access or unintentio",
+          "looks_like_noise": false
+        }
+      ]
+    }
+  ]
+}

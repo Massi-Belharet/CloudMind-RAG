@@ -84,4 +84,5 @@ def get_pipeline() -> Pipeline:
         reranker=reranker,
         relevance_threshold=config.rag.relevance_threshold,
         router=router,
+        min_chunk_score=config.rag.min_chunk_score,
     )
